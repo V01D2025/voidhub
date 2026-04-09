@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>VoidHub</title>
+<title>VoidHub store</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
@@ -166,15 +166,17 @@ button:hover {
 </div>
 
 <script>
-const API = "https://voidhub-b.onrender.com"; // ЗАМЕНИ СЮДА
+const API = "https://voidhub-b.onrender.com";
 
 async function buy(packageId) {
-  const username = document.getElementById("username").value;
+  const username = document.getElementById("username").value.trim();
 
   if (!username) {
     alert("Введи ник!");
     return;
   }
+
+  console.log("Отправка запроса...", { username, packageId });
 
   try {
     const res = await fetch(API + "/create-checkout", {
@@ -182,21 +184,35 @@ async function buy(packageId) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ username, packageId })
+      body: JSON.stringify({
+        username: username,
+        packageId: packageId
+      })
     });
+
+    console.log("Статус ответа:", res.status);
+
+    // если сервер вернул не 200
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Ошибка ответа:", text);
+      alert("Ошибка сервера: " + text);
+      return;
+    }
 
     const data = await res.json();
     console.log("Ответ сервера:", data);
 
-    if (data.url) {
+    if (data.url && data.url.startsWith("http")) {
+      console.log("Редирект на:", data.url);
       window.location.href = data.url;
     } else {
-      alert("Ошибка: " + JSON.stringify(data));
+      alert("Backend не вернул ссылку. Смотри консоль (F12)");
     }
 
   } catch (err) {
-    console.error(err);
-    alert("Fetch ошибка — backend не работает");
+    console.error("Fetch ошибка:", err);
+    alert("Ошибка подключения к backend");
   }
 }
 </script>
