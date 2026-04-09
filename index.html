@@ -176,18 +176,27 @@ async function buy(packageId) {
     return;
   }
 
-  const res = await fetch(API + "/create-checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, packageId })
-  });
+  try {
+    const res = await fetch(API + "/create-checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, packageId })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
+    console.log("Ответ сервера:", data);
 
-  if (data.url) {
-    window.location.href = data.url;
-  } else {
-    alert("Ошибка создания ссылки");
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Ошибка: " + JSON.stringify(data));
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Fetch ошибка — backend не работает");
   }
 }
 </script>
