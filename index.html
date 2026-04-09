@@ -1,20 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>VoidHub Store</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>VoidHub Store</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+body {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  background: radial-gradient(circle at top, #1a1f3a, #050510);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+header {
+  text-align: center;
+  padding: 60px 20px 30px;
+}
+
+header h1 {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+header p {
+  color: #aaa;
+  margin-top: 10px;
+}
+
+/* IP BOX */
+.ip-box {
+  margin: 20px auto;
+  padding: 15px 25px;
+  width: fit-content;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  color: #7cf7ff;
+}
+
+/* INPUT */
+.input-box {
+  display: flex;
+  justify-content: center;
+  margin: 30px;
+}
+
+input {
+  padding: 12px;
+  width: 260px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 40px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+/* CARD */
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 20px;
+  transition: 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: #7cf7ff;
+  box-shadow: 0 0 25px rgba(124,247,255,0.2);
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.price {
+  margin: 10px 0;
+  color: #7cf7ff;
+  font-weight: 700;
+}
+
+.desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+/* BUTTON */
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: linear-gradient(90deg, #7cf7ff, #6c5cff);
+  color: black;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* glow animation */
+.card::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: radial-gradient(circle, rgba(124,247,255,0.1), transparent 60%);
+  transform: rotate(0deg);
+}
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-    <h1>VoidHub Store</h1>
+<header>
+  <h1>VOIDHUB STORE</h1>
+  <p>Лучшая система донатов для Minecraft сервера</p>
 
-    <input id="nickname" placeholder="Your nickname">
-    <button onclick="buy()">Buy rank</button>
+  <div class="ip-box">IP: play.voidhub.net</div>
+</header>
 
+<div class="input-box">
+  <input id="username" placeholder="Введите ник Minecraft">
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>VIP</h2>
+    <div class="price">49 UAH</div>
+    <div class="desc">Базовые привилегии + чат цвет</div>
+    <button onclick="buy(1)">Купить</button>
   </div>
 
-  <script src="script.js"></script>
+  <div class="card">
+    <h2>VIP+</h2>
+    <div class="price">99 UAH</div>
+    <div class="desc">Расширенные команды + эффекты</div>
+    <button onclick="buy(2)">Купить</button>
+  </div>
+
+  <div class="card">
+    <h2>MVP</h2>
+    <div class="price">199 UAH</div>
+    <div class="desc">Преимущества + префиксы + кит</div>
+    <button onclick="buy(3)">Купить</button>
+  </div>
+
+</div>
+
+<script>
+const API = "https://YOUR-BACKEND.onrender.com"; // ЗАМЕНИ СЮДА
+
+async function buy(packageId) {
+  const username = document.getElementById("username").value;
+
+  if (!username) {
+    alert("Введи ник!");
+    return;
+  }
+
+  const res = await fetch(API + "/create-checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, packageId })
+  });
+
+  const data = await res.json();
+
+  if (data.url) {
+    window.location.href = data.url;
+  } else {
+    alert("Ошибка создания ссылки");
+  }
+}
+</script>
+
 </body>
 </html>
