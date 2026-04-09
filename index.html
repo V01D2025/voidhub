@@ -1,77 +1,75 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>VoidHub store</title>
-<h1>TEST 999</h1>
+<title>VoidHub Store</title>
 
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   font-family: Inter, sans-serif;
-  background: radial-gradient(circle at top, #1a1f3a, #050510);
+  background: radial-gradient(circle at 50% 0%, #1f2a5a, #050510);
   color: white;
-  overflow-x: hidden;
 }
 
 /* HEADER */
 header {
   text-align: center;
-  padding: 60px 20px 30px;
+  padding: 70px 20px 30px;
 }
 
-header h1 {
-  font-size: 42px;
-  font-weight: 800;
-  letter-spacing: 1px;
+h1 {
+  font-size: 48px;
+  margin: 0;
+  background: linear-gradient(90deg,#7cf7ff,#6c5cff);
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
-header p {
+p {
   color: #aaa;
-  margin-top: 10px;
 }
 
-/* IP BOX */
-.ip-box {
-  margin: 20px auto;
-  padding: 15px 25px;
-  width: fit-content;
+/* IP */
+.ip {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 12px 25px;
   border-radius: 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  font-weight: 600;
   color: #7cf7ff;
 }
 
 /* INPUT */
-.input-box {
+.input {
   display: flex;
   justify-content: center;
-  margin: 30px;
+  margin: 40px;
 }
 
 input {
-  padding: 12px;
+  padding: 14px;
   width: 260px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
-  outline: none;
   background: rgba(255,255,255,0.08);
   color: white;
   text-align: center;
-  font-size: 14px;
+  outline: none;
 }
 
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 25px;
   padding: 40px;
   max-width: 1000px;
   margin: auto;
@@ -79,48 +77,39 @@ input {
 
 /* CARD */
 .card {
+  padding: 25px;
+  border-radius: 20px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 20px;
   transition: 0.3s;
   position: relative;
   overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-8px);
-  border-color: #7cf7ff;
-  box-shadow: 0 0 25px rgba(124,247,255,0.2);
+  transform: translateY(-10px);
+  box-shadow: 0 0 40px rgba(124,247,255,0.2);
 }
 
 .card h2 {
   margin: 0;
-  font-size: 20px;
 }
 
 .price {
-  margin: 10px 0;
   color: #7cf7ff;
+  margin: 10px 0;
   font-weight: 700;
-}
-
-.desc {
-  font-size: 13px;
-  color: #aaa;
-  margin-bottom: 15px;
 }
 
 /* BUTTON */
 button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
+  border-radius: 14px;
   border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: linear-gradient(90deg, #7cf7ff, #6c5cff);
-  color: black;
   font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(90deg,#7cf7ff,#6c5cff);
   transition: 0.2s;
 }
 
@@ -128,16 +117,17 @@ button:hover {
   transform: scale(1.05);
 }
 
-/* glow animation */
-.card::before {
-  content: "";
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background: radial-gradient(circle, rgba(124,247,255,0.1), transparent 60%);
-  transform: rotate(0deg);
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* LOADER */
+.loader {
+  display: none;
+  text-align: center;
+  margin-top: 20px;
+  color: #7cf7ff;
 }
 </style>
 </head>
@@ -146,37 +136,44 @@ button:hover {
 
 <header>
   <h1>VOIDHUB</h1>
-
-  <div class="ip-box">IP: voidhub.graj.today</div>
+  <p>Донат-магазин Minecraft сервера</p>
+  <div class="ip">IP: voidhub.graj.today</div> <!-- можешь поменять -->
 </header>
 
-<div class="input-box">
-  <input id="username" placeholder="Введите ник Minecraft">
+<div class="input">
+  <input id="username" placeholder="Введите ник">
 </div>
 
 <div class="grid">
 
   <div class="card">
     <h2>Титул "Бедварсер"</h2>
-    <div class="price">1.00 $</div>
-    <div class="desc">Титул "Бедварсер" в чате</div>
-    <button onclick="buy(7380254)">Купить</button>
+    <div class="price">$1.00</div>
+    <p>Красивый титул в чате</p>
+
+    <!-- ВАЖНО: ВСТАВЬ СВОЙ packageId -->
+    <button onclick="buy(7380254, this)">Купить</button>
   </div>
 
 </div>
 
+<div class="loader" id="loader">Создание покупки...</div>
+
 <script>
+/* 🔴 ВСТАВЬ СВОЙ BACKEND */
 const API = "https://voidhub-b.onrender.com";
 
-async function buy(packageId) {
+async function buy(packageId, btn) {
   const username = document.getElementById("username").value.trim();
+  const loader = document.getElementById("loader");
 
   if (!username) {
     alert("Введи ник!");
     return;
   }
 
-  console.log("Отправка запроса...", { username, packageId });
+  btn.disabled = true;
+  loader.style.display = "block";
 
   try {
     const res = await fetch(API + "/create-checkout", {
@@ -190,30 +187,27 @@ async function buy(packageId) {
       })
     });
 
-    console.log("Статус ответа:", res.status);
-
-    // если сервер вернул не 200
     if (!res.ok) {
       const text = await res.text();
-      console.error("Ошибка ответа:", text);
-      alert("Ошибка сервера: " + text);
-      return;
+      throw new Error(text);
     }
 
     const data = await res.json();
-    console.log("Ответ сервера:", data);
+    console.log("Ответ:", data);
 
-    if (data.url && data.url.startsWith("http")) {
-      console.log("Редирект на:", data.url);
+    if (data.url) {
       window.location.href = data.url;
     } else {
-      alert("Backend не вернул ссылку. Смотри консоль (F12)");
+      alert("Ошибка: backend не вернул ссылку");
     }
 
   } catch (err) {
-    console.error("Fetch ошибка:", err);
-    alert("Ошибка подключения к backend");
+    console.error(err);
+    alert("Ошибка: " + err.message);
   }
+
+  btn.disabled = false;
+  loader.style.display = "none";
 }
 </script>
 
