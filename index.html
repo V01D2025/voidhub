@@ -5,760 +5,1238 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoidHub — Minecraft Server</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tebex.io/js/tebex.js"></script>
 <style>
-:root {
-  --bg: #03050c;
-  --bg2: #060a14;
-  --bg3: #0a1020;
-  --panel: rgba(10,16,32,0.9);
-  --cyan: #00e5ff;
-  --purple: #a855f7;
-  --orange: #ff6b2b;
-  --gold: #f59e0b;
-  --text: #f0f4ff;
-  --muted: #5a6b8a;
-  --muted2: #8899bb;
-  --border: rgba(0,229,255,0.1);
-  --border2: rgba(168,85,247,0.15);
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Space Grotesk', sans-serif;
-  overflow-x: hidden;
-  cursor: none;
-}
-
-/* CURSOR */
-#cur {
-  position: fixed; width:8px; height:8px;
-  background: var(--cyan); border-radius:50%;
-  pointer-events:none; z-index:9999;
-  box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(0,229,255,0.4);
-  transition: transform 0.08s;
-}
-#cur2 {
-  position:fixed; width:28px; height:28px;
-  border: 1px solid rgba(0,229,255,0.4); border-radius:50%;
-  pointer-events:none; z-index:9998;
-}
-
-/* NOISE TEXTURE */
-body::before {
-  content:'';
-  position:fixed; inset:0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none; z-index:0; opacity:0.4;
-}
-
-/* AMBIENT GLOWS */
-.amb {
-  position:fixed; border-radius:50%;
-  pointer-events:none; z-index:0; filter:blur(80px);
-}
-.amb1 { width:600px; height:600px; top:-200px; left:-200px; background:rgba(168,85,247,0.07); }
-.amb2 { width:500px; height:500px; bottom:-150px; right:-150px; background:rgba(0,229,255,0.06); }
-.amb3 { width:400px; height:400px; top:40%; left:30%; background:rgba(255,107,43,0.04); }
-
-/* CANVAS */
-#sc { position:fixed; inset:0; z-index:0; pointer-events:none; }
-
-/* NAV */
-nav {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  height:64px; padding: 0 48px;
-  display:flex; align-items:center; justify-content:space-between;
-  background: rgba(3,5,12,0.75);
-  backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.nav-logo {
-  font-family:'Orbitron',sans-serif;
-  font-size:18px; font-weight:900; letter-spacing:4px;
-  text-decoration:none;
-  display:flex; align-items:center; gap:10px;
-}
-
-.logo-v {
-  width:32px; height:32px; border-radius:6px;
-  background: linear-gradient(135deg, var(--cyan), var(--purple));
-  display:flex; align-items:center; justify-content:center;
-  font-size:15px; font-weight:900; color:#000;
-}
-
-.logo-text { color: var(--text); }
-.logo-text span { color: var(--cyan); }
-
-.nav-center { display:flex; gap:28px; }
-.nav-center a {
-  color: var(--muted2); text-decoration:none;
-  font-size:14px; font-weight:500; letter-spacing:0.5px;
-  transition: color 0.2s;
-}
-.nav-center a:hover { color: var(--text); }
-
-.nav-ip {
-  font-family:'Orbitron',sans-serif;
-  font-size:10px; letter-spacing:2px; color: var(--cyan);
-  border: 1px solid rgba(0,229,255,0.2);
-  background: rgba(0,229,255,0.05);
-  padding: 8px 18px; border-radius:6px;
-  cursor:pointer; transition: all 0.2s;
-  display:flex; align-items:center; gap:8px;
-}
-.nav-ip:hover { background: rgba(0,229,255,0.1); box-shadow: 0 0 20px rgba(0,229,255,0.15); }
-.nav-ip-dot { width:6px; height:6px; border-radius:50%; background:#00ff88; box-shadow:0 0 6px #00ff88; animation: blink 2s infinite; }
-
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-/* HERO */
-.hero {
-  min-height:100vh;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding: 64px 24px 40px;
-  position:relative; z-index:1;
-  text-align:center;
-}
-
-.hero-badge {
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:12px; letter-spacing:2px; color: var(--muted2);
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-  padding: 6px 16px; border-radius:100px;
-  margin-bottom:32px;
-  animation: fadeUp 0.7s ease both;
-}
-
-.hero-badge-dot { width:6px; height:6px; border-radius:50%; background: var(--cyan); box-shadow:0 0 8px var(--cyan); animation:blink 1.5s infinite; }
-
-.hero-title {
-  font-family:'Orbitron',sans-serif;
-  font-size: clamp(64px,11vw,130px);
-  font-weight:900; line-height:0.88;
-  letter-spacing:-3px;
-  animation: fadeUp 0.7s 0.1s ease both;
-  margin-bottom:24px;
-}
-
-.ht1 {
-  display:block; color:#fff;
-  text-shadow: 0 0 80px rgba(255,255,255,0.08);
-}
-
-.ht2 {
-  display:block;
-  background: linear-gradient(90deg, var(--cyan) 0%, var(--purple) 60%, var(--orange) 100%);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  filter: drop-shadow(0 0 40px rgba(0,229,255,0.25));
-}
-
-.hero-desc {
-  font-size:18px; color: var(--muted2); font-weight:400;
-  max-width:480px; line-height:1.6; margin-bottom:48px;
-  animation: fadeUp 0.7s 0.2s ease both;
-}
-
-/* HERO IP INPUT */
-.hero-checkout {
-  background: rgba(10,16,32,0.8);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius:16px;
-  padding:32px 36px;
-  width:100%; max-width:460px;
-  animation: fadeUp 0.7s 0.3s ease both;
-  backdrop-filter: blur(20px);
-  position:relative;
-  overflow:hidden;
-}
-
-.hero-checkout::before {
-  content:'';
-  position:absolute; top:0; left:0; right:0; height:1px;
-  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
-  opacity:0.4;
-}
-
-.hc-title {
-  font-size:13px; letter-spacing:2px; color: var(--muted);
-  text-transform:uppercase; margin-bottom:20px;
-  display:flex; align-items:center; gap:8px;
-}
-
-.hc-title::before {
-  content:'';
-  width:16px; height:1px; background: var(--cyan);
-}
-
-.hc-product {
-  display:flex; align-items:center; gap:14px;
-  background: rgba(0,229,255,0.04);
-  border: 1px solid rgba(0,229,255,0.1);
-  border-radius:10px; padding:14px 16px;
-  margin-bottom:20px;
-}
-
-.hc-product-icon {
-  width:44px; height:44px; border-radius:8px; flex-shrink:0;
-  background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(168,85,247,0.2));
-  border: 1px solid rgba(0,229,255,0.15);
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px;
-}
-
-.hc-product-name {
-  font-family:'Orbitron',sans-serif;
-  font-size:13px; font-weight:700; color:#fff; letter-spacing:1px;
-}
-
-.hc-product-sub { font-size:12px; color: var(--muted); margin-top:2px; }
-
-.hc-product-price {
-  margin-left:auto; font-family:'Orbitron',sans-serif;
-  font-size:22px; font-weight:700; color: var(--cyan); flex-shrink:0;
-}
-
-.hc-label {
-  font-size:12px; letter-spacing:1.5px; color: var(--muted);
-  text-transform:uppercase; display:block; margin-bottom:8px;
-}
-
-.hc-input {
-  width:100%; padding:13px 16px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius:8px; color:#fff;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:16px; font-weight:500;
-  outline:none; transition: all 0.2s;
-  margin-bottom:16px;
-}
-
-.hc-input::placeholder { color: var(--muted); }
-.hc-input:focus {
-  border-color: rgba(0,229,255,0.4);
-  background: rgba(0,229,255,0.04);
-  box-shadow: 0 0 0 3px rgba(0,229,255,0.06);
-}
-.hc-input.error {
-  border-color: rgba(255,80,80,0.5);
-  background: rgba(255,80,80,0.04);
-  animation: shake 0.3s ease;
-}
-
-@keyframes shake {
-  0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-6px)}
-  75%{transform:translateX(6px)}
-}
-
-.hc-btn {
-  width:100%; padding:15px;
-  background: linear-gradient(90deg, var(--cyan), var(--purple));
-  border:none; border-radius:8px;
-  color:#fff; font-family:'Orbitron',sans-serif;
-  font-size:12px; font-weight:700; letter-spacing:2px;
-  cursor:pointer; transition: all 0.2s;
-  position:relative; overflow:hidden;
-  text-transform:uppercase;
-}
-
-.hc-btn::before {
-  content:'';
-  position:absolute; inset:0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transform:translateX(-100%); transition:transform 0.4s;
-}
-
-.hc-btn:hover::before { transform:translateX(100%); }
-.hc-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3), 0 8px 30px rgba(0,0,0,0.3); transform:translateY(-1px); }
-.hc-btn:active { transform:translateY(0); }
-
-.hc-note {
-  display:flex; align-items:center; justify-content:center; gap:6px;
-  font-size:12px; color: var(--muted); margin-top:14px;
-}
-
-.lock-icon {
-  width:11px; height:13px; position:relative; flex-shrink:0;
-}
-.lock-body {
-  width:11px; height:7px; border:1.5px solid var(--muted);
-  border-radius:2px; position:absolute; bottom:0;
-}
-.lock-shackle {
-  width:7px; height:6px; border:1.5px solid var(--muted);
-  border-bottom:none; border-radius:4px 4px 0 0;
-  position:absolute; top:0; left:2px;
-}
-
-/* SCROLL HINT */
-.scroll-hint {
-  position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
-  display:flex; flex-direction:column; align-items:center; gap:8px;
-  opacity:0.35; animation: fadeUp 1s 1s ease both;
-}
-.sh-text { font-size:10px; letter-spacing:3px; color: var(--muted); text-transform:uppercase; }
-.sh-line { width:1px; height:36px; background:linear-gradient(to bottom, var(--muted), transparent); animation:scrollDrop 1.5s ease-in-out infinite; }
-@keyframes scrollDrop {
-  0%{opacity:0;transform:scaleY(0);transform-origin:top}
-  50%{opacity:1;transform:scaleY(1);transform-origin:top}
-  100%{opacity:0;transform:scaleY(1);transform-origin:bottom}
-}
-
-@keyframes fadeUp {
-  from{opacity:0;transform:translateY(24px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-/* STATS */
-.stats {
-  position:relative; z-index:1;
-  border-top:1px solid rgba(255,255,255,0.05);
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  background: rgba(6,10,20,0.6);
-  backdrop-filter:blur(10px);
-  display:flex; justify-content:center; flex-wrap:wrap;
-}
-
-.stat {
-  flex:1; min-width:140px; text-align:center;
-  padding:32px 24px; position:relative;
-}
-
-.stat:not(:last-child)::after {
-  content:''; position:absolute; right:0; top:20%; bottom:20%;
-  width:1px; background:rgba(255,255,255,0.05);
-}
-
-.stat-n {
-  font-family:'Orbitron',sans-serif; font-size:32px; font-weight:700;
-  background: linear-gradient(135deg, #fff, rgba(255,255,255,0.6));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  display:block; line-height:1;
-}
-
-.stat-l { font-size:11px; letter-spacing:2.5px; color: var(--muted); text-transform:uppercase; margin-top:6px; }
-
-/* SECTIONS */
-.wrap { max-width:1160px; margin:0 auto; padding:0 40px; }
-
-section { position:relative; z-index:1; padding:100px 0; }
-
-.s-tag {
-  display:inline-block; font-size:10px; letter-spacing:3px;
-  text-transform:uppercase; color: var(--cyan);
-  border: 1px solid rgba(0,229,255,0.15);
-  background: rgba(0,229,255,0.05);
-  padding:5px 14px; border-radius:100px; margin-bottom:20px;
-}
-
-.s-title {
-  font-family:'Orbitron',sans-serif;
-  font-size:clamp(26px,3.5vw,44px); font-weight:700;
-  line-height:1.1; color:#fff; margin-bottom:16px;
-}
-
-.s-title em {
-  font-style:normal;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-}
-
-.s-desc { font-size:16px; color: var(--muted2); line-height:1.7; max-width:520px; }
-
-/* MODES */
-.mode-big {
-  margin-top:52px;
-  background: var(--panel);
-  border:1px solid rgba(0,229,255,0.1);
-  border-radius:20px; padding:52px;
-  position:relative; overflow:hidden;
-  transition: border-color 0.3s;
-}
-
-.mode-big:hover { border-color: rgba(0,229,255,0.25); }
-
-.mode-big-bg {
-  position:absolute; inset:0; pointer-events:none;
-  background: radial-gradient(ellipse at 85% 50%, rgba(0,229,255,0.04) 0%, transparent 60%);
-}
-
-.mode-big-em {
-  position:absolute; right:-20px; top:50%; transform:translateY(-50%);
-  font-size:280px; line-height:1; opacity:0.06; pointer-events:none;
-  user-select:none; filter:blur(2px);
-}
-
-.mode-live {
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:11px; letter-spacing:2px; text-transform:uppercase;
-  color: #00ff88; margin-bottom:20px;
-}
-.mode-live-dot { width:7px; height:7px; border-radius:50%; background:#00ff88; box-shadow:0 0 8px #00ff88; animation:blink 1.5s infinite; }
-
-.mode-name {
-  font-family:'Orbitron',sans-serif;
-  font-size:52px; font-weight:900; color:#fff; line-height:1;
-  margin-bottom:16px; letter-spacing:-2px;
-}
-
-.mode-desc { font-size:16px; color: var(--muted2); line-height:1.7; max-width:520px; margin-bottom:32px; }
-
-.mode-chips { display:flex; flex-wrap:wrap; gap:10px; }
-
-.chip {
-  font-size:13px; color: var(--text);
-  background: rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.07);
-  padding:7px 16px; border-radius:100px;
-  display:flex; align-items:center; gap:7px;
-}
-.chip-dot { width:5px; height:5px; border-radius:50%; background:var(--cyan); flex-shrink:0; }
-
-.modes-soon {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:14px; margin-top:16px;
-}
-
-.mode-soon-card {
-  background: rgba(10,16,32,0.6);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:12px; padding:24px 20px;
-  opacity:0.45; transition: opacity 0.2s;
-}
-
-.msn { font-family:'Orbitron',sans-serif; font-size:16px; font-weight:700; color:#fff; margin-bottom:4px; }
-.mss { font-size:12px; color: var(--muted); letter-spacing:1px; }
-.ms-badge {
-  display:inline-block; font-size:9px; letter-spacing:2px;
-  color: var(--purple); border:1px solid rgba(168,85,247,0.2);
-  background: rgba(168,85,247,0.08);
-  padding:3px 10px; border-radius:100px; margin-bottom:12px;
-}
-
-/* STORE SECTION */
-.store-bg {
-  background: rgba(6,10,20,0.5);
-  border-top:1px solid rgba(255,255,255,0.04);
-  border-bottom:1px solid rgba(255,255,255,0.04);
-}
-
-.rank-grid {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px; margin-top:52px;
-}
-
-.rank-card {
-  background: var(--panel);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:16px; padding:32px 28px;
-  position:relative; overflow:hidden;
-  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-}
-
-.rank-card.active {
-  border-color: rgba(0,229,255,0.3);
-  box-shadow: 0 0 0 1px rgba(0,229,255,0.06), 0 24px 60px rgba(0,0,0,0.4);
-}
-
-.rank-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(0,229,255,0.35);
-  box-shadow: 0 20px 60px rgba(0,229,255,0.08);
-}
-
-.rank-card-shine {
-  position:absolute; top:-80px; left:50%; transform:translateX(-50%);
-  width:180px; height:180px; border-radius:50%;
-  background: radial-gradient(circle, rgba(0,229,255,0.1) 0%, transparent 70%);
-  pointer-events:none;
-}
-
-.rank-avail {
-  position:absolute; top:14px; right:14px;
-  font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:1.5px;
-  background: var(--cyan); color:#000; font-weight:700;
-  padding:4px 10px; border-radius:4px;
-}
-
-.rank-icon {
-  width:56px; height:56px; border-radius:10px; margin-bottom:18px;
-  background: linear-gradient(135deg, rgba(0,229,255,0.12), rgba(168,85,247,0.12));
-  border:1px solid rgba(0,229,255,0.15);
-  display:flex; align-items:center; justify-content:center; font-size:26px;
-}
-
-.rank-name {
-  font-family:'Orbitron',sans-serif; font-size:18px; font-weight:700;
-  color:#fff; letter-spacing:1px; margin-bottom:4px;
-}
-
-.rank-game { font-size:12px; letter-spacing:2px; color: var(--cyan); text-transform:uppercase; margin-bottom:20px; }
-
-.rank-perks { list-style:none; margin-bottom:24px; }
-.rank-perks li {
-  font-size:13px; color: var(--muted2); padding:5px 0;
-  border-bottom:1px solid rgba(255,255,255,0.04);
-  display:flex; align-items:center; gap:8px;
-}
-.rank-perks li::before {
-  content:''; width:4px; height:4px; border-radius:50%;
-  background: var(--cyan); flex-shrink:0;
-}
-
-.rank-price {
-  display:flex; align-items:baseline; gap:4px; margin-bottom:18px;
-}
-.rp-cur { font-family:'Orbitron',sans-serif; font-size:15px; color: var(--cyan); }
-.rp-amt { font-family:'Orbitron',sans-serif; font-size:38px; font-weight:700; color:#fff; }
-.rp-per { font-size:13px; color: var(--muted); }
-
-.buy-btn {
-  width:100%; padding:13px; border:none; border-radius:8px;
-  background: linear-gradient(90deg, var(--cyan), var(--purple));
-  color:#fff; font-family:'Orbitron',sans-serif;
-  font-size:11px; font-weight:700; letter-spacing:2px;
-  cursor:pointer; transition: all 0.2s; text-transform:uppercase;
-  position:relative; overflow:hidden;
-}
-.buy-btn::before {
-  content:'';
-  position:absolute; inset:0;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-  transform:translateX(-100%); transition:transform 0.4s;
-}
-.buy-btn:hover::before { transform:translateX(100%); }
-.buy-btn:hover { box-shadow:0 0 24px rgba(0,229,255,0.25); transform:translateY(-2px); }
-
-/* MODAL */
-.overlay {
-  position:fixed; inset:0; z-index:500;
-  background: rgba(0,0,0,0.88); backdrop-filter:blur(16px);
-  display:flex; align-items:center; justify-content:center;
-  opacity:0; pointer-events:none; transition:opacity 0.3s;
-  padding:20px;
-}
-.overlay.open { opacity:1; pointer-events:all; }
-
-.modal {
-  background: #070c18;
-  border:1px solid rgba(0,229,255,0.15);
-  border-radius:20px; padding:44px 40px;
-  width:100%; max-width:480px;
-  position:relative;
-  transform:translateY(24px) scale(0.97);
-  transition:transform 0.3s;
-  box-shadow:0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,229,255,0.05);
-}
-.overlay.open .modal { transform:translateY(0) scale(1); }
-
-.modal::before {
-  content:'';
-  position:absolute; top:0; left:0; right:0; height:1px;
-  background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);
-  border-radius:20px 20px 0 0; opacity:0.5;
-}
-
-.modal-x {
-  position:absolute; top:16px; right:16px;
-  width:30px; height:30px; border-radius:6px;
-  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07);
-  color: var(--muted2); font-size:16px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.2s; line-height:1;
-}
-.modal-x:hover { background:rgba(255,255,255,0.1); color:#fff; }
-
-.modal-heading {
-  font-family:'Orbitron',sans-serif; font-size:20px; font-weight:700;
-  color:#fff; margin-bottom:6px;
-}
-.modal-sub { font-size:14px; color: var(--muted2); line-height:1.6; margin-bottom:28px; }
-
-.modal-product {
-  display:flex; align-items:center; gap:14px;
-  background:rgba(0,229,255,0.04); border:1px solid rgba(0,229,255,0.1);
-  border-radius:10px; padding:16px; margin-bottom:24px;
-}
-.mp-icon {
-  width:46px; height:46px; border-radius:8px; flex-shrink:0;
-  background:linear-gradient(135deg,rgba(0,229,255,0.2),rgba(168,85,247,0.2));
-  border:1px solid rgba(0,229,255,0.12);
-  display:flex; align-items:center; justify-content:center; font-size:22px;
-}
-.mp-name { font-family:'Orbitron',sans-serif; font-size:13px; font-weight:700; color:#fff; letter-spacing:1px; }
-.mp-sub { font-size:12px; color: var(--muted); margin-top:2px; }
-.mp-price { margin-left:auto; font-family:'Orbitron',sans-serif; font-size:22px; font-weight:700; color: var(--cyan); flex-shrink:0; }
-
-.modal-label { font-size:11px; letter-spacing:2px; color: var(--muted); text-transform:uppercase; display:block; margin-bottom:8px; }
-
-.modal-input {
-  width:100%; padding:13px 16px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px; color:#fff;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:16px; font-weight:500;
-  outline:none; transition:all 0.2s; margin-bottom:20px;
-}
-.modal-input::placeholder { color: var(--muted); }
-.modal-input:focus {
-  border-color:rgba(0,229,255,0.4);
-  background:rgba(0,229,255,0.03);
-  box-shadow:0 0 0 3px rgba(0,229,255,0.06);
-}
-.modal-input.err {
-  border-color:rgba(255,80,80,0.5);
-  animation:shake 0.3s ease;
-}
-
-.modal-btn {
-  width:100%; padding:15px; border:none; border-radius:8px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  color:#fff; font-family:'Orbitron',sans-serif;
-  font-size:11px; font-weight:700; letter-spacing:2px;
-  cursor:pointer; transition:all 0.2s;
-  text-transform:uppercase; position:relative; overflow:hidden;
-}
-.modal-btn::before {
-  content:'';
-  position:absolute; inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-  transform:translateX(-100%); transition:transform 0.4s;
-}
-.modal-btn:hover::before { transform:translateX(100%); }
-.modal-btn:hover { box-shadow:0 0 28px rgba(0,229,255,0.3); transform:translateY(-1px); }
-
-.modal-safe {
-  display:flex; align-items:center; justify-content:center; gap:7px;
-  font-size:12px; color: var(--muted); margin-top:14px;
-}
-
-/* STEPS */
-.steps-grid {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:16px; margin-top:52px;
-}
-
-.step {
-  background: var(--panel);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:14px; padding:28px 24px;
-  position:relative; overflow:hidden;
-  transition:all 0.25s;
-}
-.step:hover { border-color:rgba(168,85,247,0.25); transform:translateY(-4px); }
-
-.step-n {
-  position:absolute; top:16px; right:18px;
-  font-family:'Orbitron',sans-serif; font-size:42px; font-weight:900;
-  color:rgba(255,255,255,0.03); line-height:1; letter-spacing:-2px;
-}
-
-.step-ico { font-size:26px; margin-bottom:14px; }
-.step-t { font-family:'Orbitron',sans-serif; font-size:13px; font-weight:600; color:#fff; letter-spacing:0.5px; margin-bottom:7px; }
-.step-d { font-size:13px; color: var(--muted2); line-height:1.6; }
-
-/* FOOTER */
-footer {
-  position:relative; z-index:1;
-  border-top:1px solid rgba(255,255,255,0.05);
-  padding:56px 40px 36px; text-align:center;
-  background:rgba(3,5,12,0.8);
-}
-
-.ft-logo {
-  font-family:'Orbitron',sans-serif; font-size:22px; font-weight:900;
-  letter-spacing:4px; margin-bottom:10px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-}
-
-.ft-ip { font-family:'Orbitron',sans-serif; font-size:12px; color: var(--muted); letter-spacing:3px; margin-bottom:28px; }
-
-.ft-links { display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-bottom:36px; }
-.ft-links a { color: var(--muted); text-decoration:none; font-size:13px; letter-spacing:1px; text-transform:uppercase; transition:color 0.2s; }
-.ft-links a:hover { color: var(--cyan); }
-
-.ft-copy { font-size:12px; color:rgba(90,107,138,0.4); letter-spacing:0.5px; }
-
-/* TOAST */
-.toast {
-  position:fixed; bottom:36px; left:50%;
-  transform:translateX(-50%) translateY(70px);
-  background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3);
-  color: var(--cyan); font-family:'Orbitron',sans-serif;
-  font-size:10px; letter-spacing:2px; padding:10px 22px; border-radius:6px;
-  transition:transform 0.3s; z-index:600; pointer-events:none;
-  white-space:nowrap;
-}
-.toast.show { transform:translateX(-50%) translateY(0); }
-
-/* GLOW DIVIDER */
-.gd {
-  height:1px; position:relative; z-index:1;
-  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.15),rgba(168,85,247,0.15),transparent);
-}
-
-@media(max-width:768px) {
-  nav { padding:0 20px; }
-  .nav-center { display:none; }
-  .wrap { padding:0 20px; }
-  section { padding:64px 0; }
-  .mode-big { padding:32px 24px; }
-  .mode-big-em { display:none; }
-  .mode-name { font-size:36px; }
-  .hero-checkout { padding:24px 20px; }
-  footer { padding:40px 20px 28px; }
-  .modal { padding:32px 24px; }
-}
+  :root {
+    --void: #050810;
+    --deep: #080d1a;
+    --panel: rgba(12,18,35,0.85);
+    --accent: #00d4ff;
+    --accent2: #7b2fff;
+    --accent3: #ff6b35;
+    --gold: #ffd700;
+    --text: #e8eaf6;
+    --muted: #6b7a99;
+    --glow: 0 0 20px rgba(0,212,255,0.4);
+    --glow2: 0 0 20px rgba(123,47,255,0.4);
+    --border: rgba(0,212,255,0.15);
+    --border2: rgba(123,47,255,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+    box-shadow: 0 0 12px var(--accent), 0 0 24px rgba(0,212,255,0.5);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1.5px solid rgba(0,212,255,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.15s, width 0.2s, height 0.2s;
+  }
+
+  /* STARS */
+  .stars-bg {
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(123,47,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(0,212,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 0%, rgba(255,107,53,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #stars-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* GRID LINES */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* LAYOUT */
+  main { position: relative; z-index: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 40px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(5,8,16,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo-cube {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    animation: rotateCube 8s linear infinite;
+  }
+
+  @keyframes rotateCube {
+    0% { transform: rotateY(0deg) rotateX(0deg); }
+    50% { transform: rotateY(180deg) rotateX(15deg); }
+    100% { transform: rotateY(360deg) rotateX(0deg); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-ip {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(0,212,255,0.05);
+  }
+
+  .nav-ip:hover {
+    background: rgba(0,212,255,0.12);
+    box-shadow: var(--glow);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 68px 20px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-void {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, rgba(123,47,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: pulseRing 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .hero-ring:nth-child(1) {
+    width: 500px; height: 500px;
+    border-color: rgba(0,212,255,0.06);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation-delay: 0s;
+  }
+  .hero-ring:nth-child(2) {
+    width: 750px; height: 750px;
+    border-color: rgba(123,47,255,0.05);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation-delay: 1s;
+  }
+  .hero-ring:nth-child(3) {
+    width: 1000px; height: 1000px;
+    border-color: rgba(0,212,255,0.03);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation-delay: 2s;
+  }
+
+  @keyframes pulseRing {
+    0%, 100% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%,-50%) scale(1.02); }
+  }
+
+  .hero-eyebrow {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(52px, 9vw, 110px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+    animation: fadeUp 0.8s 0.1s ease both;
+    position: relative;
+  }
+
+  .hero-title-main {
+    display: block;
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 40px rgba(255,255,255,0.1));
+  }
+
+  .hero-title-accent {
+    display: block;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(0,212,255,0.3));
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 2px;
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.3s ease both;
+    margin-bottom: 60px;
+  }
+
+  .btn-primary {
+    padding: 14px 36px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .btn-primary:hover::before { transform: translateX(100%); }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(0,212,255,0.4), 0 0 60px rgba(123,47,255,0.2); transform: translateY(-2px); }
+
+  .btn-secondary {
+    padding: 14px 36px;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    box-shadow: var(--glow2);
+  }
+
+  /* IP COPY WIDGET */
+  .hero-ip-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 24px;
+    animation: fadeUp 0.8s 0.4s ease both;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-ip-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.04), transparent);
+  }
+
+  .hero-ip-box:hover {
+    border-color: rgba(0,212,255,0.35);
+    box-shadow: var(--glow);
+  }
+
+  .hero-ip-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .hero-ip-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .hero-ip-copy {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .hero-ip-box:hover .hero-ip-copy { color: var(--accent); }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 40px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(0,212,255,0.12);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 10px 24px;
+    border-radius: 4px;
+    transition: transform 0.3s;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  .copied-toast.show { transform: translateX(-50%) translateY(0); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,13,26,0.6);
+    backdrop-filter: blur(10px);
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+    padding: 0 32px;
+    position: relative;
+  }
+
+  .stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 10%; bottom: 10%;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .section-title em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .section-desc {
+    font-size: 17px;
+    color: var(--muted);
+    font-weight: 400;
+    line-height: 1.7;
+    max-width: 560px;
+    margin-bottom: 56px;
+  }
+
+  /* MODES SECTION */
+  .modes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .mode-card {
+    position: relative;
+    padding: 60px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .mode-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    box-shadow: inset 0 0 60px rgba(0,212,255,0.03), 0 0 40px rgba(0,212,255,0.08);
+  }
+
+  .mode-card-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .mode-tag {
+    display: inline-block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 3px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+
+  .mode-coming {
+    background: rgba(123,47,255,0.1);
+    border-color: rgba(123,47,255,0.2);
+    color: var(--accent2);
+  }
+
+  .mode-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .mode-desc {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+    margin-bottom: 32px;
+  }
+
+  .mode-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .mode-feat {
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--text);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mode-feat-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .bedwars-art {
+    position: absolute;
+    right: -40px; top: 50%;
+    transform: translateY(-50%);
+    width: 380px; height: 380px;
+    pointer-events: none;
+    opacity: 0.12;
+    font-size: 320px;
+    line-height: 1;
+    filter: blur(1px);
+    user-select: none;
+  }
+
+  /* SHOP / STORE SECTION */
+  .store-section {
+    background: rgba(8,13,26,0.5);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .store-section .section {
+    padding: 100px 40px;
+  }
+
+  .store-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  .rank-card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 32px;
+    transition: all 0.3s;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .rank-card.featured {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(0,212,255,0.1), 0 20px 60px rgba(0,212,255,0.08);
+  }
+
+  .rank-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0,212,255,0.4);
+    box-shadow: 0 20px 60px rgba(0,212,255,0.1);
+  }
+
+  .rank-card-glow {
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .rank-featured-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    background: var(--accent);
+    color: #000;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+
+  .rank-icon {
+    width: 60px; height: 60px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,47,255,0.15));
+    border: 1px solid rgba(0,212,255,0.2);
+  }
+
+  .rank-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .rank-game {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .rank-perks {
+    list-style: none;
+    margin-bottom: 28px;
+  }
+
+  .rank-perks li {
+    font-size: 14px;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rank-perks li::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .rank-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .rank-price-currency {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    color: var(--accent);
+  }
+
+  .rank-price-amount {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .rank-price-period {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+
+  .btn-buy {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-buy:hover {
+    box-shadow: 0 0 24px rgba(0,212,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  /* TEBEX MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(12px);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: #080d1a;
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    padding: 48px 40px;
+    position: relative;
+    transform: translateY(30px) scale(0.95);
+    transition: transform 0.3s;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.8), 0 0 40px rgba(0,212,255,0.05);
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .modal-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .modal-sub {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .modal-product {
+    background: rgba(0,212,255,0.06);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .modal-product-icon {
+    width: 48px; height: 48px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .modal-product-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .modal-product-desc {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .modal-product-price {
+    margin-left: auto;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .modal-form-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .modal-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+  }
+
+  .tebex-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(90deg, #00d4ff, #7b2fff);
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tebex-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .tebex-btn:hover::before { transform: translateX(100%); }
+  .tebex-btn:hover { box-shadow: 0 0 30px rgba(0,212,255,0.3); }
+
+  .tebex-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .tebex-lock {
+    width: 12px; height: 12px;
+    border: 1.5px solid var(--muted);
+    border-radius: 2px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .tebex-lock::before {
+    content: '';
+    position: absolute;
+    bottom: 100%; left: 50%;
+    transform: translateX(-50%);
+    width: 8px; height: 6px;
+    border: 1.5px solid var(--muted);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 1px;
+  }
+
+  /* HOW IT WORKS */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  .step-card {
+    padding: 32px 28px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .step-card:hover {
+    border-color: rgba(123,47,255,0.3);
+    transform: translateY(-4px);
+  }
+
+  .step-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+    margin-bottom: 16px;
+    letter-spacing: -2px;
+    position: absolute;
+    top: 20px; right: 20px;
+  }
+
+  .step-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .step-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 60px 40px 40px;
+    text-align: center;
+    background: rgba(5,8,16,0.8);
+  }
+
+  .footer-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+
+  .footer-ip {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--accent); }
+
+  .footer-copy {
+    font-size: 13px;
+    color: rgba(107,122,153,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ANIMATED BEDWARS DISPLAY */
+  .bedwars-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 48px;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .section { padding: 60px 20px; }
+    .hero-title { font-size: 48px; }
+    .bedwars-showcase { grid-template-columns: 1fr; }
+    .mode-card { padding: 36px 24px; }
+    .bedwars-art { display: none; }
+    .modal { padding: 32px 24px; }
+    .stats-bar { gap: 24px; }
+    footer { padding: 40px 20px 30px; }
+  }
+
+  /* PARTICLE EFFECTS */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+    50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+  }
+
+  .particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: float linear infinite;
+    pointer-events: none;
+  }
+
+  /* GLOW LINES */
+  .glow-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    opacity: 0.3;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.5; }
+  }
+
+  /* ONLINE INDICATOR */
+  .online-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #00ff88;
+    display: inline-block;
+    animation: blink 2s ease-in-out infinite;
+    box-shadow: 0 0 6px #00ff88;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeUp 1s 1s ease both;
+    opacity: 0.5;
+  }
+
+  .scroll-hint-text {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .scroll-arrow {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--muted), transparent);
+    animation: scrollLine 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollLine {
+    0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+    50% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+    100% { opacity: 0; transform: scaleY(1); transform-origin: bottom; }
+  }
 </style>
 </head>
 <body>
 
-<div id="cur"></div>
-<div id="cur2"></div>
-<div class="amb amb1"></div>
-<div class="amb amb2"></div>
-<div class="amb amb3"></div>
-<canvas id="sc"></canvas>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<canvas id="stars-canvas"></canvas>
+<div class="stars-bg"></div>
+<div class="grid-overlay"></div>
 
-<div class="toast" id="toast">IP СКОПИРОВАН</div>
+<div class="copied-toast" id="toast">IP СКОПИРОВАН</div>
 
 <!-- MODAL -->
-<div class="overlay" id="overlay">
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <button class="modal-x" id="mclose">✕</button>
-    <div class="modal-heading">Купить ранг</div>
-    <div class="modal-sub">Введи свой никнейм — тебя перенаправят на защищённую страницу оплаты Tebex.</div>
-
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-title">Купить ранг</div>
+    <div class="modal-sub">Введи свой никнейм Minecraft и тебя перенаправят на защищённый платёж через Tebex.</div>
+    
     <div class="modal-product">
-      <div class="mp-icon">🛏</div>
+      <div class="modal-product-icon">🛏</div>
       <div>
-        <div class="mp-name">BEDWARSER</div>
-        <div class="mp-sub">Постоянный ранг · BedWars</div>
+        <div class="modal-product-name">BEDWARSER</div>
+        <div class="modal-product-desc">Постоянный ранг · BedWars</div>
       </div>
-      <div class="mp-price">$1</div>
+      <div class="modal-product-price">$1</div>
     </div>
 
-    <label class="modal-label">Никнейм Minecraft</label>
-    <input class="modal-input" id="nick" type="text" placeholder="Твой никнейм..." maxlength="16" autocomplete="off" spellcheck="false">
+    <label class="modal-form-label">Никнейм в Minecraft</label>
+    <input class="modal-input" id="nicknameInput" type="text" placeholder="Твой никнейм..." maxlength="16" autocomplete="off" spellcheck="false">
 
-    <button class="modal-btn" onclick="doBuy()">Перейти к оплате →</button>
-
-    <div class="modal-safe">
-      <svg width="12" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink:0">
-        <rect x="1" y="6" width="10" height="7" rx="2" stroke="#5a6b8a" stroke-width="1.5"/>
-        <path d="M3.5 6V4a2.5 2.5 0 015 0v2" stroke="#5a6b8a" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Безопасная оплата · Tebex · Visa / MasterCard / PayPal
+    <button class="tebex-btn" id="tebexBtn" onclick="handleBuy()">
+      Перейти к оплате →
+    </button>
+    <div class="tebex-note">
+      <div class="tebex-lock"></div>
+      Безопасная оплата через Tebex · Visa / MasterCard / PayPal
     </div>
   </div>
 </div>
@@ -766,349 +1244,386 @@ footer {
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">
-    <div class="logo-v">V</div>
-    <span class="logo-text">VOID<span>HUB</span></span>
+    <div class="logo-cube">⬡</div>
+    VOID<span>HUB</span>
   </a>
-  <div class="nav-center">
-    <a href="#modes">Режимы</a>
-    <a href="#store">Магазин</a>
-    <a href="#how">Как купить</a>
-  </div>
-  <div class="nav-ip" onclick="copyIP()">
-    <div class="nav-ip-dot"></div>
-    voidhub.graj.today
-  </div>
+  <ul class="nav-links">
+    <li><a href="#modes">Режимы</a></li>
+    <li><a href="#store">Магазин</a></li>
+    <li><a href="#how">Как купить</a></li>
+  </ul>
+  <div class="nav-ip" onclick="copyIP()">voidhub.graj.today</div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-badge">
-    <div class="hero-badge-dot"></div>
-    Сервер онлайн · Версия 1.8 – 1.21
-  </div>
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-void"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
 
-  <h1 class="hero-title">
-    <span class="ht1">VOID</span>
-    <span class="ht2">HUB</span>
-  </h1>
+    <div class="hero-eyebrow">
+      <span class="online-dot"></span>&nbsp;&nbsp;Сервер онлайн · Версия 1.8 – 1.21
+    </div>
 
-  <p class="hero-desc">Minecraft сервер нового поколения. BedWars, честная игра, молниеносный отклик.</p>
+    <h1 class="hero-title">
+      <span class="hero-title-main">VOID</span>
+      <span class="hero-title-accent">HUB</span>
+    </h1>
 
-  <div class="hero-checkout">
-    <div class="hc-title">Быстрая покупка</div>
-    <div class="hc-product">
-      <div class="hc-product-icon">🛏</div>
+    <p class="hero-sub">Minecraft · BedWars · PvP</p>
+
+    <div class="hero-buttons">
+      <a href="#store" class="btn-primary">🛒 Магазин рангов</a>
+      <a href="#modes" class="btn-secondary">Режимы игры</a>
+    </div>
+
+    <div class="hero-ip-box" onclick="copyIP()">
       <div>
-        <div class="hc-product-name">BEDWARSER</div>
-        <div class="hc-product-sub">Постоянный ранг · BedWars</div>
+        <div class="hero-ip-label">IP адрес</div>
+        <div class="hero-ip-value">voidhub.graj.today</div>
       </div>
-      <div class="hc-product-price">$1</div>
-    </div>
-    <label class="hc-label">Никнейм Minecraft</label>
-    <input class="hc-input" id="heroNick" type="text" placeholder="Введи никнейм..." maxlength="16" autocomplete="off" spellcheck="false">
-    <button class="hc-btn" onclick="heroCheckout()">Купить за $1 →</button>
-    <div class="hc-note">
-      <svg width="12" height="14" viewBox="0 0 12 14" fill="none" style="flex-shrink:0">
-        <rect x="1" y="6" width="10" height="7" rx="2" stroke="#5a6b8a" stroke-width="1.5"/>
-        <path d="M3.5 6V4a2.5 2.5 0 015 0v2" stroke="#5a6b8a" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Защищённая оплата через Tebex
-    </div>
-  </div>
-
-  <div class="scroll-hint">
-    <div class="sh-text">Листай вниз</div>
-    <div class="sh-line"></div>
-  </div>
-</section>
-
-<!-- STATS -->
-<div class="stats">
-  <div class="stat"><span class="stat-n" id="onlineCnt">0</span><div class="stat-l">Игроков онлайн</div></div>
-  <div class="stat"><span class="stat-n">1.8+</span><div class="stat-l">Версия</div></div>
-  <div class="stat"><span class="stat-n">24/7</span><div class="stat-l">Аптайм</div></div>
-  <div class="stat"><span class="stat-n">&lt;5ms</span><div class="stat-l">Пинг EU</div></div>
-</div>
-
-<div class="gd"></div>
-
-<!-- MODES -->
-<section id="modes">
-  <div class="wrap">
-    <div class="s-tag">Режимы игры</div>
-    <h2 class="s-title">Играй в то,<br>что <em>нравится</em></h2>
-    <p class="s-desc">Сейчас доступен BedWars. Новые режимы в разработке.</p>
-
-    <div class="mode-big">
-      <div class="mode-big-bg"></div>
-      <div class="mode-big-em">🛏</div>
-      <div class="mode-live"><div class="mode-live-dot"></div>Доступно сейчас</div>
-      <div class="mode-name">BedWars</div>
-      <p class="mode-desc">Защити свою кровать и уничтожь кровати врагов. Быстрый темп, тактика, честный PvP — всё как ты любишь.</p>
-      <div class="mode-chips">
-        <div class="chip"><div class="chip-dot"></div>Соло / Duo / Squad</div>
-        <div class="chip"><div class="chip-dot"></div>Читерозащита</div>
-        <div class="chip"><div class="chip-dot"></div>Рейтинг и статистика</div>
-        <div class="chip"><div class="chip-dot"></div>Кастомные карты</div>
-        <div class="chip"><div class="chip-dot"></div>1.8 PvP механики</div>
-      </div>
+      <div class="hero-ip-copy">Нажми чтобы скопировать</div>
     </div>
 
-    <div class="modes-soon">
-      <div class="mode-soon-card">
-        <div class="ms-badge">Скоро</div>
-        <div class="msn">SkyWars</div>
-        <div class="mss">Острова в небе</div>
-      </div>
-      <div class="mode-soon-card">
-        <div class="ms-badge">Скоро</div>
-        <div class="msn">Duels</div>
-        <div class="mss">1v1 дуэли</div>
-      </div>
-      <div class="mode-soon-card">
-        <div class="ms-badge">Скоро</div>
-        <div class="msn">UHC</div>
-        <div class="mss">Ультра хардкор</div>
-      </div>
-      <div class="mode-soon-card">
-        <div class="ms-badge">Скоро</div>
-        <div class="msn">Factions</div>
-        <div class="mss">Фракции</div>
-      </div>
+    <div class="scroll-hint">
+      <div class="scroll-hint-text">Прокрути</div>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num" id="playerCount">0</span>
+      <div class="stat-label">Игроков онлайн</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">1.8+</span>
+      <div class="stat-label">Версия клиента</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">24/7</span>
+      <div class="stat-label">Время работы</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">1ms</span>
+      <div class="stat-label">Задержка EU</div>
     </div>
   </div>
-</section>
 
-<div class="gd"></div>
+  <div class="glow-line"></div>
 
-<!-- STORE -->
-<section class="store-bg" id="store">
-  <div class="wrap" style="padding-top:0; padding-bottom:0;">
-    <div class="s-tag">Магазин</div>
-    <h2 class="s-title">Поддержи сервер —<br>получи <em>привилегии</em></h2>
-    <p class="s-desc">Один ранг, одна цена. Честно и без P2W.</p>
+  <!-- GAME MODES -->
+  <section class="section" id="modes">
+    <div class="section-eyebrow">Режимы игры</div>
+    <h2 class="section-title">Играй в то,<br>что <em>тебе нравится</em></h2>
+    <p class="section-desc">На сервере уже доступен BedWars. Новые режимы появятся в ближайшее время.</p>
 
-    <div class="rank-grid">
+    <div class="modes-grid">
+      <div class="mode-card">
+        <div class="mode-card-bg" style="background: radial-gradient(ellipse at 80% 50%, rgba(0,212,255,0.06) 0%, transparent 60%);"></div>
+        <div class="bedwars-art">🛏</div>
 
-      <div class="rank-card active">
-        <div class="rank-card-shine"></div>
-        <div class="rank-avail">ДОСТУПНО</div>
-        <div class="rank-icon">🛏</div>
-        <div class="rank-name">BEDWARSER</div>
-        <div class="rank-game">BedWars</div>
-        <ul class="rank-perks">
-          <li>Золотой префикс [BEDWARSER] в чате</li>
-          <li>Кастомный цвет ника</li>
-          <li>Эксклюзивные частицы на кровати</li>
-          <li>Особое приветствие при входе</li>
-          <li>Ранний доступ к новым картам</li>
-        </ul>
-        <div class="rank-price">
-          <span class="rp-cur">$</span>
-          <span class="rp-amt">1</span>
-          <span class="rp-per">/ навсегда</span>
+        <div class="mode-tag">Доступно сейчас</div>
+        <div class="mode-title">BedWars</div>
+        <p class="mode-desc">Защити свою кровать и уничтожь кровати врагов. Классический режим с быстрым темпом, тактической игрой и эпичными сражениями.</p>
+
+        <div class="mode-features">
+          <div class="mode-feat"><div class="mode-feat-dot"></div>Соло / Duo / Squad</div>
+          <div class="mode-feat"><div class="mode-feat-dot"></div>Читерозащита</div>
+          <div class="mode-feat"><div class="mode-feat-dot"></div>Рейтинг и статистика</div>
+          <div class="mode-feat"><div class="mode-feat-dot"></div>Кастомные карты</div>
+          <div class="mode-feat"><div class="mode-feat-dot"></div>1.8 PvP механики</div>
         </div>
-        <button class="buy-btn" onclick="openModal()">Купить ранг →</button>
       </div>
-
-      <div class="rank-card" style="opacity:0.38; pointer-events:none;">
-        <div class="rank-icon" style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(255,107,43,0.12));border-color:rgba(168,85,247,0.15)">⚡</div>
-        <div class="rank-name" style="color:var(--muted2)">VIP</div>
-        <div class="rank-game" style="color:var(--purple)">Скоро</div>
-        <ul class="rank-perks">
-          <li>Больше привилегий</li>
-          <li>Эксклюзивные команды</li>
-          <li>Особые косметики</li>
-        </ul>
-        <div class="rank-price">
-          <span class="rp-cur" style="color:var(--muted)">$</span>
-          <span class="rp-amt" style="color:var(--muted2)">?</span>
-        </div>
-        <button class="buy-btn" style="background:rgba(255,255,255,0.05);cursor:not-allowed">Скоро</button>
-      </div>
-
-      <div class="rank-card" style="opacity:0.38; pointer-events:none;">
-        <div class="rank-icon" style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(255,107,43,0.12));border-color:rgba(245,158,11,0.15)">👑</div>
-        <div class="rank-name" style="color:var(--muted2)">MVP</div>
-        <div class="rank-game" style="color:var(--orange)">Скоро</div>
-        <ul class="rank-perks">
-          <li>Максимум привилегий</li>
-          <li>Все косметики</li>
-          <li>Приоритетная поддержка</li>
-        </ul>
-        <div class="rank-price">
-          <span class="rp-cur" style="color:var(--muted)">$</span>
-          <span class="rp-amt" style="color:var(--muted2)">?</span>
-        </div>
-        <button class="buy-btn" style="background:rgba(255,255,255,0.05);cursor:not-allowed">Скоро</button>
-      </div>
-
     </div>
-  </div>
-</section>
 
-<div class="gd"></div>
+    <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+      <div class="mode-card" style="opacity: 0.5; padding: 32px;">
+        <div class="mode-tag mode-coming">Скоро</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: #fff;">SkyWars</div>
+        <div style="font-size: 14px; color: var(--muted); margin-top: 8px;">Острова в небе</div>
+      </div>
+      <div class="mode-card" style="opacity: 0.5; padding: 32px;">
+        <div class="mode-tag mode-coming">Скоро</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: #fff;">UHC</div>
+        <div style="font-size: 14px; color: var(--muted); margin-top: 8px;">Ультра хардкор</div>
+      </div>
+      <div class="mode-card" style="opacity: 0.5; padding: 32px;">
+        <div class="mode-tag mode-coming">Скоро</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: #fff;">Duels</div>
+        <div style="font-size: 14px; color: var(--muted); margin-top: 8px;">1v1 дуэли</div>
+      </div>
+    </div>
+  </section>
 
-<!-- HOW TO BUY -->
-<section id="how">
-  <div class="wrap">
-    <div class="s-tag">Как купить</div>
-    <h2 class="s-title">Просто и <em>быстро</em></h2>
-    <p class="s-desc">Покупка занимает меньше минуты. Ранг выдаётся мгновенно.</p>
+  <div class="divider"></div>
+
+  <!-- STORE -->
+  <section class="store-section" id="store">
+    <div class="section" style="max-width: 1200px; margin: 0 auto;">
+      <div class="section-eyebrow">Магазин</div>
+      <h2 class="section-title">Поддержи сервер —<br>получи <em>преимущества</em></h2>
+      <p class="section-desc" style="margin-bottom: 0;">Один ранг, одна цена. Честно и прозрачно.</p>
+
+      <div class="store-grid">
+        <div class="rank-card featured">
+          <div class="rank-card-glow"></div>
+          <div class="rank-featured-badge">ДОСТУПНО</div>
+          <div class="rank-icon">🛏</div>
+          <div class="rank-name">BEDWARSER</div>
+          <div class="rank-game">BedWars</div>
+          <ul class="rank-perks">
+            <li>Золотой префикс [BEDWARSER] в чате</li>
+            <li>Кастомный цвет ника</li>
+            <li>Эксклюзивные частицы на кровати</li>
+            <li>Особое приветствие при входе</li>
+            <li>Ранний доступ к обновлениям</li>
+          </ul>
+          <div class="rank-price">
+            <span class="rank-price-currency">$</span>
+            <span class="rank-price-amount">1</span>
+            <span class="rank-price-period">/ навсегда</span>
+          </div>
+          <button class="btn-buy" onclick="openModal()">Купить ранг →</button>
+        </div>
+
+        <div class="rank-card" style="opacity: 0.4; pointer-events: none;">
+          <div class="rank-icon" style="background: linear-gradient(135deg, rgba(123,47,255,0.15), rgba(255,107,53,0.15)); border-color: rgba(123,47,255,0.2);">⚡</div>
+          <div class="rank-name" style="color: var(--muted);">VIP</div>
+          <div class="rank-game" style="color: var(--accent2);">Скоро</div>
+          <ul class="rank-perks">
+            <li>Больше привилегий</li>
+            <li>Эксклюзивные команды</li>
+            <li>Особые косметики</li>
+          </ul>
+          <div class="rank-price">
+            <span class="rank-price-currency" style="color: var(--muted);">$</span>
+            <span class="rank-price-amount" style="color: var(--muted);">?</span>
+          </div>
+          <button class="btn-buy" style="background: rgba(255,255,255,0.05); cursor: not-allowed;">Скоро</button>
+        </div>
+
+        <div class="rank-card" style="opacity: 0.4; pointer-events: none;">
+          <div class="rank-icon" style="background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,107,53,0.15)); border-color: rgba(255,215,0,0.2);">👑</div>
+          <div class="rank-name" style="color: var(--muted);">MVP</div>
+          <div class="rank-game" style="color: var(--accent3);">Скоро</div>
+          <ul class="rank-perks">
+            <li>Максимум привилегий</li>
+            <li>Все косметики</li>
+            <li>Приоритетная поддержка</li>
+          </ul>
+          <div class="rank-price">
+            <span class="rank-price-currency" style="color: var(--muted);">$</span>
+            <span class="rank-price-amount" style="color: var(--muted);">?</span>
+          </div>
+          <button class="btn-buy" style="background: rgba(255,255,255,0.05); cursor: not-allowed;">Скоро</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- HOW TO BUY -->
+  <section class="section" id="how">
+    <div class="section-eyebrow">Как купить</div>
+    <h2 class="section-title">Просто, быстро,<br><em>безопасно</em></h2>
+    <p class="section-desc">Покупка ранга занимает меньше минуты. Через Tebex — как у Hypixel.</p>
 
     <div class="steps-grid">
-      <div class="step">
-        <div class="step-n">01</div>
-        <div class="step-ico">🎮</div>
-        <div class="step-t">Зайди на сервер</div>
-        <p class="step-d">Подключись к <strong style="color:var(--cyan)">voidhub.graj.today</strong> с любой версии 1.8+</p>
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🎮</div>
+        <div class="step-title">Зайди на сервер</div>
+        <p class="step-desc">Подключись к <strong style="color: var(--accent);">voidhub.graj.today</strong> с любой версии 1.8+</p>
       </div>
-      <div class="step">
-        <div class="step-n">02</div>
-        <div class="step-ico">✍️</div>
-        <div class="step-t">Введи никнейм</div>
-        <p class="step-d">Вставь свой ник в форму на сайте — он передастся на страницу оплаты</p>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🛒</div>
+        <div class="step-title">Выбери ранг</div>
+        <p class="step-desc">Открой магазин на сайте и нажми «Купить ранг»</p>
       </div>
-      <div class="step">
-        <div class="step-n">03</div>
-        <div class="step-ico">💳</div>
-        <div class="step-t">Оплати на Tebex</div>
-        <p class="step-d">Visa, MasterCard, PayPal — защищённый платёж, ник уже заполнен</p>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">✍️</div>
+        <div class="step-title">Введи никнейм</div>
+        <p class="step-desc">Укажи точный никнейм Minecraft — он чувствителен к регистру</p>
       </div>
-      <div class="step">
-        <div class="step-n">04</div>
-        <div class="step-ico">✅</div>
-        <div class="step-t">Получи ранг</div>
-        <p class="step-d">Ранг выдаётся автоматически через несколько секунд после оплаты</p>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-icon">💳</div>
+        <div class="step-title">Оплати через Tebex</div>
+        <p class="step-desc">Visa, MasterCard, PayPal — защита покупателя, мгновенная выдача</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">05</div>
+        <div class="step-icon">✅</div>
+        <div class="step-title">Получи ранг</div>
+        <p class="step-desc">Ранг выдаётся автоматически в течение нескольких секунд после оплаты</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</main>
+
+<div class="glow-line"></div>
 
 <footer>
-  <div class="ft-logo">VOIDHUB</div>
-  <div class="ft-ip">voidhub.graj.today</div>
-  <div class="ft-links">
+  <div class="footer-logo">VOIDHUB</div>
+  <div class="footer-ip">voidhub.graj.today</div>
+  <div class="footer-links">
     <a href="#modes">Режимы</a>
     <a href="#store">Магазин</a>
     <a href="#how">Как купить</a>
     <a href="https://tebex.io" target="_blank">Tebex</a>
   </div>
-  <div class="ft-copy">© 2025 VoidHub · Не связан с Mojang Studios</div>
+  <div class="footer-copy">© 2025 VoidHub · Не связан с Mojang Studios</div>
 </footer>
 
 <script>
 // CURSOR
-const cur = document.getElementById('cur');
-const cur2 = document.getElementById('cur2');
-let mx=0,my=0,r2x=0,r2y=0;
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
 document.addEventListener('mousemove', e => {
-  mx=e.clientX; my=e.clientY;
-  cur.style.left=mx-4+'px'; cur.style.top=my-4+'px';
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx - 5 + 'px';
+  cursor.style.top = my - 5 + 'px';
 });
-(function loop(){
-  r2x+=(mx-r2x-14)*0.13; r2y+=(my-r2y-14)*0.13;
-  cur2.style.left=r2x+'px'; cur2.style.top=r2y+'px';
-  requestAnimationFrame(loop);
-})();
-document.querySelectorAll('a,button,.rank-card,.mode-big,.nav-ip,.hero-checkout').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{cur.style.transform='scale(2)';cur2.style.transform='scale(1.4)';});
-  el.addEventListener('mouseleave',()=>{cur.style.transform='scale(1)';cur2.style.transform='scale(1)';});
+
+function animRing() {
+  rx += (mx - rx - 16) * 0.14;
+  ry += (my - ry - 16) * 0.14;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+document.querySelectorAll('a, button, .rank-card, .mode-card, .hero-ip-box, .nav-ip').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(1.8)'; ring.style.width = '48px'; ring.style.height = '48px'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; ring.style.width = '32px'; ring.style.height = '32px'; });
 });
 
 // STARS
-const sc=document.getElementById('sc');
-const ctx=sc.getContext('2d');
-let stars=[];
-function initStars(){
-  sc.width=window.innerWidth; sc.height=window.innerHeight;
-  stars=Array.from({length:160},()=>({
-    x:Math.random()*sc.width, y:Math.random()*sc.height,
-    r:Math.random()*1.1+0.2, o:Math.random()*0.5+0.1,
-    t:Math.random()*Math.PI*2, sp:Math.random()*0.3+0.05
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function initStars() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = Array.from({length: 180}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.2 + 0.2,
+    o: Math.random() * 0.6 + 0.1,
+    sp: Math.random() * 0.3 + 0.05,
+    t: Math.random() * Math.PI * 2
   }));
 }
-function drawStars(){
-  ctx.clearRect(0,0,sc.width,sc.height);
-  stars.forEach(s=>{
-    s.t+=s.sp*0.018;
+
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.t += s.sp * 0.02;
+    const o = s.o * (0.6 + 0.4 * Math.sin(s.t));
     ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,255,255,${s.o*(0.5+0.5*Math.sin(s.t))})`;
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${o})`;
     ctx.fill();
   });
   requestAnimationFrame(drawStars);
 }
-initStars(); drawStars();
-window.addEventListener('resize',initStars);
 
-// ONLINE COUNT
-let c=0; const tgt=47; const cel=document.getElementById('onlineCnt');
-const ti=setInterval(()=>{c=Math.min(c+2,tgt);cel.textContent=c;if(c>=tgt)clearInterval(ti);},35);
+initStars();
+drawStars();
+window.addEventListener('resize', initStars);
 
 // COPY IP
-function copyIP(){
-  navigator.clipboard.writeText('voidhub.graj.today').catch(()=>{});
-  const t=document.getElementById('toast');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
+function copyIP() {
+  navigator.clipboard.writeText('voidhub.graj.today').catch(() => {});
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-// TEBEX CHECKOUT — прямой редирект с ником в URL
-function goToTebex(nick){
-  // Tebex webstore checkout с передачей ника
-  const url = 'https://checkout.tebex.io/+1796919?username=' + encodeURIComponent(nick) + '&package=7380254';
-  window.location.href = url;
-}
+// PLAYER COUNT ANIMATION
+let count = 0;
+const target = 47;
+const el = document.getElementById('playerCount');
+const inc = setInterval(() => {
+  count = Math.min(count + Math.ceil(target / 30), target);
+  el.textContent = count;
+  if (count >= target) clearInterval(inc);
+}, 40);
 
-// HERO CHECKOUT
-function heroCheckout(){
-  const inp=document.getElementById('heroNick');
-  const nick=inp.value.trim();
-  if(!nick){
-    inp.classList.add('error');
-    inp.placeholder='Введи никнейм!';
-    setTimeout(()=>{inp.classList.remove('error'); inp.placeholder='Введи никнейм...';},1500);
-    return;
+// TEBEX SETUP
+window.addEventListener("load", () => {
+  if (typeof Tebex !== "undefined") {
+    Tebex.init("1796919");
+  } else {
+    console.error("Tebex не загрузился");
   }
-  goToTebex(nick);
-}
+});
 
 // MODAL
-const overlay=document.getElementById('overlay');
-document.getElementById('mclose').addEventListener('click',closeModal);
-overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+const modal = document.getElementById('modal');
+const modalClose = document.getElementById('modalClose');
 
-function openModal(){ overlay.classList.add('open'); document.body.style.overflow='hidden'; }
-function closeModal(){ overlay.classList.remove('open'); document.body.style.overflow=''; }
-
-function doBuy(){
-  const inp=document.getElementById('nick');
-  const nick=inp.value.trim();
-  if(!nick){
-    inp.classList.add('err');
-    inp.placeholder='Введи никнейм!';
-    setTimeout(()=>{inp.classList.remove('err'); inp.placeholder='Твой никнейм...';},1500);
-    return;
-  }
-  goToTebex(nick);
+function openModal() {
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-document.getElementById('heroNick').addEventListener('keydown',e=>{if(e.key==='Enter')heroCheckout();});
-document.getElementById('nick').addEventListener('keydown',e=>{if(e.key==='Enter')doBuy();});
+function closeModal() {
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-// SCROLL REVEAL
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// TEBEX BUY
+function handleBuy() {
+  const nick = document.getElementById('nicknameInput').value.trim();
+  if (!nick) {
+    document.getElementById('nicknameInput').style.borderColor = '#ff4444';
+    document.getElementById('nicknameInput').placeholder = 'Введи никнейм!';
+    setTimeout(() => { document.getElementById('nicknameInput').style.borderColor = ''; }, 1500);
+    return;
+  }
+  closeModal();
+  Tebex.checkout.launch({
+    packageId: 7380254,
+    username: nick
   });
-},{threshold:0.1});
+}
 
-document.querySelectorAll('.step,.mode-soon-card').forEach(el=>{
-  el.style.opacity='0'; el.style.transform='translateY(16px)';
-  el.style.transition='opacity 0.5s ease, transform 0.5s ease, border-color 0.25s, box-shadow 0.25s';
-  obs.observe(el);
+document.getElementById('nicknameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleBuy();
+});
+
+// INTERSECTION OBSERVER for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.rank-card, .step-card, .mode-card').forEach(el => {
+  if (el.style.pointerEvents === 'none') return;
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, border-color 0.3s, box-shadow 0.3s';
+  observer.observe(el);
 });
 </script>
 </body>
