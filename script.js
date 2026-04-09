@@ -3,7 +3,7 @@ async function buy() {
 
   if (!username) return;
 
-  const res = await fetch("https://YOUR-BACKEND.onrender.com/create-checkout", {
+  const res = await fetch("https://voidhub-b.onrender.com/create-checkout", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
