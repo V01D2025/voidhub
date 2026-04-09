@@ -1215,14 +1215,14 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <button class="modal-close" id="modalClose">✕</button>
-    <div class="modal-title">Купить товар</div>
-    <div class="modal-sub">Введи свой никнейм Minecraft и тебя перенаправят на защищённый платёж.</div>
+    <div class="modal-title">Купить ранг</div>
+    <div class="modal-sub">Введи свой никнейм Minecraft и тебя перенаправят на защищённый платёж через Tebex.</div>
     
     <div class="modal-product">
       <div class="modal-product-icon">🛏</div>
       <div>
         <div class="modal-product-name">BEDWARSER</div>
-        <div class="modal-product-desc">Постоянный титул · BedWars</div>
+        <div class="modal-product-desc">Постоянный ранг · BedWars</div>
       </div>
       <div class="modal-product-price">$1</div>
     </div>
@@ -1263,7 +1263,7 @@
     <div class="hero-ring"></div>
 
     <div class="hero-eyebrow">
-      <span class="online-dot"></span>&nbsp;&nbsp;Сервер онлайн · Версия 1.8 – 1.21.11
+      <span class="online-dot"></span>&nbsp;&nbsp;Сервер онлайн · Версия 1.8 – 1.21
     </div>
 
     <h1 class="hero-title">
@@ -1293,6 +1293,11 @@
   </section>
 
   <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num" id="playerCount">0</span>
+      <div class="stat-label">Игроков онлайн</div>
+    </div>
     <div class="stat-item">
       <span class="stat-num">1.8+</span>
       <div class="stat-label">Версия клиента</div>
@@ -1300,6 +1305,12 @@
     <div class="stat-item">
       <span class="stat-num">24/7</span>
       <div class="stat-label">Время работы</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">1ms</span>
+      <div class="stat-label">Задержка EU</div>
+    </div>
+  </div>
 
   <div class="glow-line"></div>
 
@@ -1322,6 +1333,7 @@
           <div class="mode-feat"><div class="mode-feat-dot"></div>Соло / Duo / Squad</div>
           <div class="mode-feat"><div class="mode-feat-dot"></div>Читерозащита</div>
           <div class="mode-feat"><div class="mode-feat-dot"></div>Рейтинг и статистика</div>
+          <div class="mode-feat"><div class="mode-feat-dot"></div>Кастомные карты</div>
           <div class="mode-feat"><div class="mode-feat-dot"></div>1.8 PvP механики</div>
         </div>
       </div>
@@ -1335,6 +1347,9 @@
       </div>
       <div class="mode-card" style="opacity: 0.5; padding: 32px;">
         <div class="mode-tag mode-coming">Скоро</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: #fff;">UHC</div>
+        <div style="font-size: 14px; color: var(--muted); margin-top: 8px;">Ультра хардкор</div>
+      </div>
       <div class="mode-card" style="opacity: 0.5; padding: 32px;">
         <div class="mode-tag mode-coming">Скоро</div>
         <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: #fff;">Duels</div>
@@ -1357,19 +1372,52 @@
           <div class="rank-card-glow"></div>
           <div class="rank-featured-badge">ДОСТУПНО</div>
           <div class="rank-icon">🛏</div>
-          <div class="rank-name">Бедварсер</div>
+          <div class="rank-name">BEDWARSER</div>
           <div class="rank-game">BedWars</div>
           <ul class="rank-perks">
-            <li>Красный суфикс [Бедварсер] в чате</li>
+            <li>Золотой префикс [BEDWARSER] в чате</li>
+            <li>Кастомный цвет ника</li>
+            <li>Эксклюзивные частицы на кровати</li>
+            <li>Особое приветствие при входе</li>
+            <li>Ранний доступ к обновлениям</li>
           </ul>
           <div class="rank-price">
             <span class="rank-price-currency">$</span>
             <span class="rank-price-amount">1</span>
             <span class="rank-price-period">/ навсегда</span>
           </div>
-          <button class="btn-buy">Купить товар →</button>
+          <button class="btn-buy">Купить ранг →</button>
         </div>
-        
+
+        <div class="rank-card" style="opacity: 0.4; pointer-events: none;">
+          <div class="rank-icon" style="background: linear-gradient(135deg, rgba(123,47,255,0.15), rgba(255,107,53,0.15)); border-color: rgba(123,47,255,0.2);">⚡</div>
+          <div class="rank-name" style="color: var(--muted);">VIP</div>
+          <div class="rank-game" style="color: var(--accent2);">Скоро</div>
+          <ul class="rank-perks">
+            <li>Больше привилегий</li>
+            <li>Эксклюзивные команды</li>
+            <li>Особые косметики</li>
+          </ul>
+          <div class="rank-price">
+            <span class="rank-price-currency" style="color: var(--muted);">$</span>
+            <span class="rank-price-amount" style="color: var(--muted);">?</span>
+          </div>
+          <button class="btn-buy" style="background: rgba(255,255,255,0.05); cursor: not-allowed;">Скоро</button>
+        </div>
+
+        <div class="rank-card" style="opacity: 0.4; pointer-events: none;">
+          <div class="rank-icon" style="background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,107,53,0.15)); border-color: rgba(255,215,0,0.2);">👑</div>
+          <div class="rank-name" style="color: var(--muted);">MVP</div>
+          <div class="rank-game" style="color: var(--accent3);">Скоро</div>
+          <ul class="rank-perks">
+            <li>Максимум привилегий</li>
+            <li>Все косметики</li>
+            <li>Приоритетная поддержка</li>
+          </ul>
+          <div class="rank-price">
+            <span class="rank-price-currency" style="color: var(--muted);">$</span>
+            <span class="rank-price-amount" style="color: var(--muted);">?</span>
+          </div>
           <button class="btn-buy" style="background: rgba(255,255,255,0.05); cursor: not-allowed;">Скоро</button>
         </div>
       </div>
@@ -1382,7 +1430,7 @@
   <section class="section" id="how">
     <div class="section-eyebrow">Как купить</div>
     <h2 class="section-title">Просто, быстро,<br><em>безопасно</em></h2>
-    <p class="section-desc">Покупка ранга занимает меньше минуты.</p>
+    <p class="section-desc">Покупка ранга занимает меньше минуты. Через Tebex — как у Hypixel.</p>
 
     <div class="steps-grid">
       <div class="step-card">
@@ -1394,26 +1442,26 @@
       <div class="step-card">
         <div class="step-num">02</div>
         <div class="step-icon">🛒</div>
-        <div class="step-title">Выбери титул/ранг</div>
-        <p class="step-desc">Открой магазин на сайте и нажми «Купить товар»</p>
+        <div class="step-title">Выбери ранг</div>
+        <p class="step-desc">Открой магазин на сайте и нажми «Купить ранг»</p>
       </div>
       <div class="step-card">
         <div class="step-num">03</div>
         <div class="step-icon">✍️</div>
         <div class="step-title">Введи никнейм</div>
-        <p class="step-desc">Укажи точный никнейм Minecraft (С заглавными буквами!) — он чувствителен к регистру</p>
+        <p class="step-desc">Укажи точный никнейм Minecraft — он чувствителен к регистру</p>
       </div>
       <div class="step-card">
         <div class="step-num">04</div>
         <div class="step-icon">💳</div>
-        <div class="step-title">Оплати</div>
+        <div class="step-title">Оплати через Tebex</div>
         <p class="step-desc">Visa, MasterCard, PayPal — защита покупателя, мгновенная выдача</p>
       </div>
       <div class="step-card">
         <div class="step-num">05</div>
         <div class="step-icon">✅</div>
-        <div class="step-title">Получи товар</div>
-        <p class="step-desc">Товар выдаётся автоматически в течение нескольких секунд после оплаты</p>
+        <div class="step-title">Получи ранг</div>
+        <p class="step-desc">Ранг выдаётся автоматически в течение нескольких секунд после оплаты</p>
       </div>
     </div>
   </section>
@@ -1428,8 +1476,9 @@
     <a href="#modes">Режимы</a>
     <a href="#store">Магазин</a>
     <a href="#how">Как купить</a>
+    <a href="https://tebex.io" target="_blank">Tebex</a>
   </div>
-  <div class="footer-copy">© 2026 VoidHub · Не связан с Mojang Studios</div>
+  <div class="footer-copy">© 2025 VoidHub · Не связан с Mojang Studios</div>
 </footer>
 
 <script>
@@ -1542,7 +1591,7 @@ function handleBuy() {
     return;
   }
   // Tebex checkout URL — replace YOUR_PACKAGE_ID with real one from Tebex dashboard
-  const url = `https://checkout.tebex.io/checkout/packages/add/7380254/single?username=${encodeURIComponent(nick)}`;
+  const url = `https://checkout.tebex.io/checkout/packages/add/YOUR_PACKAGE_ID/single?username=${encodeURIComponent(nick)}`;
   window.open(url, '_blank');
 }
 
