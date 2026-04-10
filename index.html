@@ -3,213 +3,325 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>VoidHub Store</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-
+<title>VoidHub — Minecraft Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; }
+  :root {
+    --c1: #7B5EFF;
+    --c2: #00E5FF;
+    --bg: #050510;
+    --card: rgba(255,255,255,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: radial-gradient(circle at 50% 0%, #1f2a5a, #050510);
-  color: white;
-}
+  body {
+    background: var(--bg);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* HEADER */
-header {
-  text-align: center;
-  padding: 70px 20px 30px;
-}
+  /* ── BACKGROUND ── */
+  .bg-wrap {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+  .bg-wrap canvas { width: 100%; height: 100%; display: block; }
 
-h1 {
-  font-size: 48px;
-  margin: 0;
-  background: linear-gradient(90deg,#7cf7ff,#6c5cff);
-  -webkit-background-clip: text;
-  color: transparent;
-}
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
+  }
+  .orb1 { width: 600px; height: 600px; background: rgba(123,94,255,0.18); top: -200px; left: -100px; }
+  .orb2 { width: 500px; height: 500px; background: rgba(0,229,255,0.10); bottom: -150px; right: -100px; }
+  .orb3 { width: 300px; height: 300px; background: rgba(123,94,255,0.12); top: 40%; left: 50%; transform: translateX(-50%); }
 
-p {
-  color: #aaa;
-}
+  /* ── GRID LINES ── */
+  .grid-lines {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
 
-/* IP */
-.ip {
-  margin-top: 20px;
-  display: inline-block;
-  padding: 12px 25px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #7cf7ff;
-}
+  /* ── NAV ── */
+  nav {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 48px;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 20px; letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--c1), var(--c2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-ip {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px; padding: 8px 18px;
+    font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+  }
+  .nav-ip-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #00E5FF;
+    box-shadow: 0 0 8px #00E5FF;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-/* INPUT */
-.input {
-  display: flex;
-  justify-content: center;
-  margin: 40px;
-}
+  /* ── HERO ── */
+  .hero {
+    position: relative; z-index: 5;
+    min-height: calc(100vh - 90px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 60px 24px;
+  }
 
-input {
-  padding: 14px;
-  width: 260px;
-  border-radius: 12px;
-  border: none;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  text-align: center;
-  outline: none;
-}
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(123,94,255,0.12);
+    border: 1px solid rgba(123,94,255,0.3);
+    border-radius: 30px; padding: 8px 20px;
+    font-size: 11px; font-weight: 500; letter-spacing: 2px;
+    color: #a990ff; text-transform: uppercase;
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-tag-diamond {
+    width: 5px; height: 5px;
+    background: var(--c1); transform: rotate(45deg);
+  }
 
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
-  gap: 25px;
-  padding: 40px;
-  max-width: 1000px;
-  margin: auto;
-}
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(60px, 12vw, 110px);
+    font-weight: 800; line-height: 0.9;
+    letter-spacing: -4px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  h1 .line1 { display: block; color: #fff; }
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(100deg, var(--c1) 20%, var(--c2) 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
 
-/* CARD */
-.card {
-  padding: 25px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  transition: 0.3s;
-  position: relative;
-  overflow: hidden;
-}
+  .hero-sub {
+    margin-top: 24px; margin-bottom: 48px;
+    font-size: 16px; color: rgba(255,255,255,0.35);
+    letter-spacing: 0.3px; line-height: 1.7;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
 
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 0 40px rgba(124,247,255,0.2);
-}
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: linear-gradient(135deg, var(--c1), #5b7fff);
+    color: #fff; font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 18px 42px; border-radius: 14px;
+    border: none; cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 0 rgba(123,94,255,0);
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(123,94,255,0.5);
+  }
+  .hero-cta svg { width: 16px; height: 16px; transition: transform 0.2s; }
+  .hero-cta:hover svg { transform: translateX(4px); }
 
-.card h2 {
-  margin: 0;
-}
+  /* ── MODES ── */
+  .modes {
+    display: flex; gap: 12px; margin-top: 56px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .mode-chip {
+    padding: 8px 20px; border-radius: 30px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.03);
+  }
+  .mode-chip.on {
+    border-color: rgba(0,229,255,0.3);
+    color: #00E5FF;
+    background: rgba(0,229,255,0.06);
+  }
 
-.price {
-  color: #7cf7ff;
-  margin: 10px 0;
-  font-weight: 700;
-}
+  /* ── SCROLL HINT ── */
+  .scroll-hint {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    animation: fadeIn 1s 1s ease both;
+  }
+  .scroll-hint-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+    animation: scrollLine 1.5s ease-in-out infinite;
+  }
+  @keyframes scrollLine {
+    0%,100%{transform:scaleY(1);opacity:0.4}
+    50%{transform:scaleY(0.5);opacity:1}
+  }
 
-/* BUTTON */
-button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  background: linear-gradient(90deg,#7cf7ff,#6c5cff);
-  transition: 0.2s;
-}
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 
-button:hover {
-  transform: scale(1.05);
-}
+  /* ── STATS ── */
+  .stats {
+    position: relative; z-index: 5;
+    display: flex; justify-content: center; gap: 0;
+    padding: 0 48px 80px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat {
+    text-align: center; padding: 0 48px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px; font-weight: 800;
+    background: linear-gradient(90deg, #fff, rgba(255,255,255,0.6));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 4px; letter-spacing: 0.5px; }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+  /* STARS JS */
+  #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-/* LOADER */
-.loader {
-  display: none;
-  text-align: center;
-  margin-top: 20px;
-  color: #7cf7ff;
-}
+  @media(max-width:600px){
+    nav{padding:20px 24px;}
+    .stats{flex-direction:column;align-items:center;gap:24px;}
+    .stat{border-right:none;}
+    h1{letter-spacing:-2px;}
+  }
 </style>
 </head>
-
 <body>
 
-<header>
-  <h1>VOIDHUB</h1>
-  <p>Донат-магазин Minecraft сервера</p>
-  <div class="ip">IP: voidhub.graj.today</div> <!-- можешь поменять -->
-</header>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="grid-lines"></div>
+<canvas id="starfield"></canvas>
 
-<div class="input">
-  <input id="username" placeholder="Введите ник">
-</div>
+<nav>
+  <div class="nav-logo">VOIDHUB</div>
+  <div class="nav-ip">
+    <div class="nav-ip-dot"></div>
+    voidhub.graj.today
+  </div>
+</nav>
 
-<div class="grid">
-
-  <div class="card">
-    <h2>Титул "Бедварсер"</h2>
-    <div class="price">$1.00</div>
-    <p>Красивый титул в чате</p>
-
-    <!-- ВАЖНО: ВСТАВЬ СВОЙ packageId -->
-    <button onclick="buy(7380254, this)">Купить</button>
+<section class="hero">
+  <div class="hero-tag">
+    <div class="hero-tag-diamond"></div>
+    Донат Магазин
+    <div class="hero-tag-diamond"></div>
   </div>
 
+  <h1>
+    <span class="line1">VOID</span>
+    <span class="line2">HUB</span>
+  </h1>
+
+  <p class="hero-sub">
+    Minecraft сервер · Привилегии и косметика<br>
+    Поддержи сервер — получи уникальные преимущества
+  </p>
+
+  <a href="shop.html" class="hero-cta">
+    Открыть магазин
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M3 8h10M9 4l4 4-4 4"/>
+    </svg>
+  </a>
+
+  <div class="modes">
+    <div class="mode-chip on">⚔ BedWars</div>
+    <div class="mode-chip">SkyWars — скоро</div>
+    <div class="mode-chip">KitPvP — скоро</div>
+    <div class="mode-chip">Skyblock — скоро</div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-hint-line"></div>
+    scroll
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">1</div>
+    <div class="stat-label">Режим</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">Онлайн</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Веселья</div>
+  </div>
 </div>
 
-<div class="loader" id="loader">Создание покупки...</div>
-
 <script>
-/* 🔴 ВСТАВЬ СВОЙ BACKEND */
-const API = "https://voidhub-b.onrender.com";
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars = [];
 
-async function buy(packageId, btn) {
-  const username = document.getElementById("username").value.trim();
-  const loader = document.getElementById("loader");
-
-  if (!username) {
-    alert("Введи ник!");
-    return;
-  }
-
-  btn.disabled = true;
-  loader.style.display = "block";
-
-  try {
-    const res = await fetch(API + "/create-checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username: username,
-        packageId: packageId
-      })
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
-    }
-
-    const data = await res.json();
-    console.log("Ответ:", data);
-
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Ошибка: backend не вернул ссылку");
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert("Ошибка: " + err.message);
-  }
-
-  btn.disabled = false;
-  loader.style.display = "none";
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-</script>
 
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 120; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2 + 0.2,
+      a: Math.random(),
+      speed: Math.random() * 0.004 + 0.002,
+      offset: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const t = Date.now() / 1000;
+  stars.forEach(s => {
+    const alpha = 0.15 + 0.5 * (0.5 + 0.5 * Math.sin(t * s.speed * 10 + s.offset));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+
+resize();
+initStars();
+draw();
+window.addEventListener('resize', () => { resize(); initStars(); });
+</script>
 </body>
 </html>
