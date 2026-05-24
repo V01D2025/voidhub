@@ -3,325 +3,1292 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoidHub — Minecraft Store</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>VoidHUB — Minecraft Server</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --c1: #7B5EFF;
-    --c2: #00E5FF;
-    --bg: #050510;
-    --card: rgba(255,255,255,0.04);
+    --void: #050508;
+    --deep: #0a0a12;
+    --surface: #0f0f1a;
+    --card: #13131f;
+    --card2: #181825;
+    --border: rgba(138, 92, 246, 0.15);
+    --border2: rgba(138, 92, 246, 0.08);
+    --accent: #7c3aed;
+    --accent2: #a855f7;
+    --glow: #8b5cf6;
+    --cyan: #22d3ee;
+    --teal: #14b8a6;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --dim: #334155;
+    --font-head: 'Exo 2', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg);
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
+    background: var(--void);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
     overflow-x: hidden;
+    cursor: default;
   }
 
-  /* ── BACKGROUND ── */
-  .bg-wrap {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 999; opacity: 0.3;
   }
-  .bg-wrap canvas { width: 100%; height: 100%; display: block; }
 
-  .orb {
-    position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
-  }
-  .orb1 { width: 600px; height: 600px; background: rgba(123,94,255,0.18); top: -200px; left: -100px; }
-  .orb2 { width: 500px; height: 500px; background: rgba(0,229,255,0.10); bottom: -150px; right: -100px; }
-  .orb3 { width: 300px; height: 300px; background: rgba(123,94,255,0.12); top: 40%; left: 50%; transform: translateX(-50%); }
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
 
-  /* ── GRID LINES ── */
-  .grid-lines {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  /* ── GRID BACKGROUND ── */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
     background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    pointer-events: none;
   }
+
+  /* ── FLOATING ORB ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 8s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%); top: -100px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(34,211,238,0.08), transparent 70%); bottom: 200px; right: -80px; animation-delay: -4s; }
+  .orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(168,85,247,0.1), transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -2s; }
+  @keyframes orbFloat { from { transform: translateY(0) scale(1); } to { transform: translateY(-40px) scale(1.05); } }
 
   /* ── NAV ── */
   nav {
-    position: relative; z-index: 10;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 48px;
+    padding: 0 40px;
+    height: 70px;
+    background: rgba(5,5,8,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
   }
+
   .nav-logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800; font-size: 20px; letter-spacing: 4px;
-    background: linear-gradient(90deg, var(--c1), var(--c2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none;
   }
-  .nav-ip {
+
+  .nav-logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px rgba(124,58,237,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-logo-icon::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15));
+  }
+
+  .nav-logo-text {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #fff 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-links {
     display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 30px; padding: 8px 18px;
-    font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+    list-style: none;
   }
-  .nav-ip-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #00E5FF;
-    box-shadow: 0 0 8px #00E5FF;
-    animation: blink 2s ease-in-out infinite;
+
+  .nav-links a {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s;
   }
-  @keyframes blink { 0%,100%{opacity:0.4} 50%{opacity:1} }
+  .nav-links a:hover { color: var(--text); background: rgba(124,58,237,0.1); }
+
+  .nav-shop-btn {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #fff !important;
+    padding: 10px 22px !important;
+    background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(124,58,237,0.35);
+    transition: all 0.2s !important;
+  }
+  .nav-shop-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px rgba(124,58,237,0.55) !important;
+    background: rgba(0,0,0,0) !important;
+  }
 
   /* ── HERO ── */
   .hero {
-    position: relative; z-index: 5;
-    min-height: calc(100vh - 90px);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center; padding: 60px 24px;
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
   }
 
-  .hero-tag {
+  .hero-badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(123,94,255,0.12);
-    border: 1px solid rgba(123,94,255,0.3);
-    border-radius: 30px; padding: 8px 20px;
-    font-size: 11px; font-weight: 500; letter-spacing: 2px;
-    color: #a990ff; text-transform: uppercase;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--cyan);
+    background: rgba(34,211,238,0.08);
+    border: 1px solid rgba(34,211,238,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
     margin-bottom: 32px;
-    animation: fadeUp 0.8s ease both;
-  }
-  .hero-tag-diamond {
-    width: 5px; height: 5px;
-    background: var(--c1); transform: rotate(45deg);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: fadeDown 0.6s ease both;
   }
 
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(60px, 12vw, 110px);
-    font-weight: 800; line-height: 0.9;
-    letter-spacing: -4px;
-    animation: fadeUp 0.8s 0.1s ease both;
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--cyan);
+    animation: pulse 2s infinite;
   }
-  h1 .line1 { display: block; color: #fff; }
-  h1 .line2 {
-    display: block;
-    background: linear-gradient(100deg, var(--c1) 20%, var(--c2) 80%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .hero-title {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: clamp(56px, 10vw, 110px);
+    letter-spacing: -2px;
+    line-height: 0.95;
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s ease 0.1s both;
+  }
+
+  .hero-title .void { color: #fff; }
+  .hero-title .hub {
+    background: linear-gradient(135deg, var(--accent2), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+  }
+  .hero-title .hub::after {
+    content: 'HUB';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--accent2), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: blur(20px);
+    opacity: 0.5;
+    z-index: -1;
   }
 
   .hero-sub {
-    margin-top: 24px; margin-bottom: 48px;
-    font-size: 16px; color: rgba(255,255,255,0.35);
-    letter-spacing: 0.3px; line-height: 1.7;
-    animation: fadeUp 0.8s 0.2s ease both;
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto 48px;
+    font-weight: 400;
+    animation: fadeDown 0.6s ease 0.2s both;
   }
 
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 12px;
-    background: linear-gradient(135deg, var(--c1), #5b7fff);
-    color: #fff; font-family: 'Syne', sans-serif;
-    font-size: 15px; font-weight: 700; letter-spacing: 1px;
+  .hero-ip-box {
+    display: inline-flex; align-items: center; gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 28px;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease 0.3s both;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-ip-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+  }
+  .hero-ip-box:hover { border-color: rgba(138,92,246,0.4); transform: translateY(-2px); }
+  .hero-ip-box:hover .copy-hint { opacity: 1; }
+
+  .ip-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
     text-transform: uppercase;
-    padding: 18px 42px; border-radius: 14px;
-    border: none; cursor: pointer;
+  }
+
+  .ip-address {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+  }
+
+  .copy-hint {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent2);
+    opacity: 0;
+    transition: opacity 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .hero-btns {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: fadeDown 0.6s ease 0.4s both;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 0 0 rgba(123,94,255,0);
-    animation: fadeUp 0.8s 0.3s ease both;
+    color: #fff;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(124,58,237,0.4), 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.25s;
+    border: none; cursor: pointer;
+    position: relative; overflow: hidden;
   }
-  .hero-cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(123,94,255,0.5);
+  .btn-primary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0; transition: opacity 0.2s;
   }
-  .hero-cta svg { width: 16px; height: 16px; transition: transform 0.2s; }
-  .hero-cta:hover svg { transform: translateX(4px); }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(124,58,237,0.6), 0 8px 25px rgba(0,0,0,0.4); }
+  .btn-primary:hover::before { opacity: 1; }
 
-  /* ── MODES ── */
-  .modes {
-    display: flex; gap: 12px; margin-top: 56px; flex-wrap: wrap; justify-content: center;
-    animation: fadeUp 0.8s 0.4s ease both;
-  }
-  .mode-chip {
-    padding: 8px 20px; border-radius: 30px;
-    font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.03);
-  }
-  .mode-chip.on {
-    border-color: rgba(0,229,255,0.3);
-    color: #00E5FF;
-    background: rgba(0,229,255,0.06);
-  }
-
-  /* ── SCROLL HINT ── */
-  .scroll-hint {
-    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.2);
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    animation: fadeIn 1s 1s ease both;
+    text-decoration: none;
+    color: var(--text);
+    padding: 16px 36px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.25s;
+    cursor: pointer;
   }
-  .scroll-hint-line {
-    width: 1px; height: 40px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
-    animation: scrollLine 1.5s ease-in-out infinite;
-  }
-  @keyframes scrollLine {
-    0%,100%{transform:scaleY(1);opacity:0.4}
-    50%{transform:scaleY(0.5);opacity:1}
+  .btn-secondary:hover { border-color: rgba(138,92,246,0.5); background: rgba(124,58,237,0.08); transform: translateY(-3px); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+    margin: 0 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s ease 0.5s both;
   }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .stat-item {
+    flex: 1; min-width: 180px;
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+    border-right: 1px solid var(--border2);
   }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  .stat-item:last-child { border-right: none; }
+  .stat-item::before {
+    content: '';
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0; transition: opacity 0.3s;
   }
+  .stat-item:hover::before { opacity: 1; }
 
-  /* ── STATS ── */
-  .stats {
-    position: relative; z-index: 5;
-    display: flex; justify-content: center; gap: 0;
-    padding: 0 48px 80px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .stat {
-    text-align: center; padding: 0 48px;
-    border-right: 1px solid rgba(255,255,255,0.06);
-  }
-  .stat:last-child { border-right: none; }
   .stat-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 36px; font-weight: 800;
-    background: linear-gradient(90deg, #fff, rgba(255,255,255,0.6));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: 36px;
+    background: linear-gradient(135deg, #fff, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
   }
-  .stat-label { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 4px; letter-spacing: 0.5px; }
 
-  /* STARS JS */
-  #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .stat-label {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
 
-  @media(max-width:600px){
-    nav{padding:20px 24px;}
-    .stats{flex-direction:column;align-items:center;gap:24px;}
-    .stat{border-right:none;}
-    h1{letter-spacing:-2px;}
+  /* ── SECTION ── */
+  section {
+    position: relative; z-index: 1;
+    padding: 100px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .section-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  .section-title {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: clamp(32px, 5vw, 52px);
+    letter-spacing: -1px;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .section-title span {
+    background: linear-gradient(135deg, var(--accent2), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-desc {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── MODES GRID ── */
+  .modes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .mode-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s;
+    position: relative;
+    cursor: default;
+  }
+  .mode-card:hover { transform: translateY(-6px); border-color: rgba(138,92,246,0.35); }
+  .mode-card:hover .mode-glow { opacity: 1; }
+  .mode-card.active { border-color: rgba(74,222,128,0.3); }
+  .mode-card.active .mode-status { color: var(--green); }
+  .mode-card.coming-soon { opacity: 0.65; }
+  .mode-card.coming-soon .mode-status { color: var(--yellow); }
+
+  .mode-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.08), transparent 70%);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .mode-banner {
+    height: 180px;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .mode-banner-bedwars {
+    background:
+      radial-gradient(ellipse at 30% 50%, rgba(239,68,68,0.25), transparent 60%),
+      radial-gradient(ellipse at 70% 50%, rgba(59,130,246,0.25), transparent 60%),
+      linear-gradient(180deg, #0a0a12 0%, #0f0816 100%);
+  }
+  .mode-banner-duels {
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(251,191,36,0.15), transparent 60%),
+      linear-gradient(180deg, #0a0a0a 0%, #120c00 100%);
+  }
+  .mode-banner-skywars {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(34,211,238,0.15), transparent 60%),
+      linear-gradient(180deg, #020b0f 0%, #040a12 100%);
+  }
+
+  .mode-banner-icon {
+    font-size: 72px;
+    filter: drop-shadow(0 0 30px rgba(124,58,237,0.5));
+    animation: iconFloat 3s ease-in-out infinite alternate;
+    z-index: 1;
+  }
+  .mode-banner-bedwars .mode-banner-icon { filter: drop-shadow(0 0 30px rgba(239,68,68,0.5)); }
+  .mode-banner-duels .mode-banner-icon { filter: drop-shadow(0 0 30px rgba(251,191,36,0.5)); }
+  .mode-banner-skywars .mode-banner-icon { filter: drop-shadow(0 0 30px rgba(34,211,238,0.5)); }
+
+  @keyframes iconFloat { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+
+  .mode-banner-particles {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+  .mode-banner-particles span {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--accent2);
+    animation: particleDrift linear infinite;
+    opacity: 0;
+  }
+  .mode-banner-bedwars .mode-banner-particles span { background: #f87171; }
+  .mode-banner-skywars .mode-banner-particles span { background: var(--cyan); }
+  .mode-banner-duels .mode-banner-particles span { background: var(--yellow); }
+
+  @keyframes particleDrift {
+    0% { transform: translateY(100%) translateX(var(--dx)); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(-100%) translateX(var(--dx)); opacity: 0; }
+  }
+
+  .mode-body {
+    padding: 24px;
+  }
+
+  .mode-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .mode-name {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+    color: #fff;
+  }
+
+  .mode-status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .mode-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .mode-tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+
+  .mode-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(138,92,246,0.1);
+    border: 1px solid rgba(138,92,246,0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    letter-spacing: 1px;
+  }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 28px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .feature-card:hover { border-color: var(--border); transform: translateY(-4px); }
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .feature-name {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── RANKS / SHOP PROMO ── */
+  .shop-promo {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .shop-promo-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.1), transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(34,211,238,0.06), transparent 50%);
+    pointer-events: none;
+  }
+  .shop-promo-bg::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent2) 30%, var(--cyan) 70%, transparent);
+  }
+
+  .shop-promo-inner {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    padding: 56px 56px;
+    align-items: center;
+  }
+
+  .shop-promo-left h2 {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.5px;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .shop-promo-left h2 span {
+    background: linear-gradient(135deg, var(--accent2), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shop-promo-left p {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  .ranks-list {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  .rank-item {
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    transition: all 0.2s;
+  }
+  .rank-item:hover { border-color: var(--border); background: rgba(124,58,237,0.05); }
+
+  .rank-badge {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    min-width: 80px;
+    text-align: center;
+  }
+  .rank-vip { background: rgba(74,222,128,0.15); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+  .rank-mvp { background: rgba(34,211,238,0.15); color: var(--cyan); border: 1px solid rgba(34,211,238,0.25); }
+  .rank-elite { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+  .rank-legend { background: rgba(168,85,247,0.2); color: var(--accent2); border: 1px solid rgba(168,85,247,0.35); }
+
+  .rank-info { flex: 1; }
+  .rank-name {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .rank-perks {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── HOW TO PLAY ── */
+  .steps-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .step-item {
+    padding: 40px 32px;
+    text-align: center;
+    border-right: 1px solid var(--border2);
+    position: relative;
+    transition: background 0.25s;
+  }
+  .step-item:last-child { border-right: none; }
+  .step-item:hover { background: rgba(124,58,237,0.04); }
+
+  .step-num {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: 52px;
+    background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(168,85,247,0.4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .step-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 17px;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .step-desc code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--cyan);
+    background: rgba(34,211,238,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(34,211,238,0.15);
+  }
+
+  /* ── DISCORD ── */
+  .discord-section {
+    background: linear-gradient(135deg, rgba(88,101,242,0.15), rgba(124,58,237,0.1));
+    border: 1px solid rgba(88,101,242,0.25);
+    border-radius: 20px;
+    padding: 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .discord-section::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(88,101,242,0.8), transparent);
+  }
+
+  .discord-icon { font-size: 56px; margin-bottom: 24px; display: block; }
+
+  .discord-section h2 {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 40px);
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .discord-section p {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    max-width: 400px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  .btn-discord {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #fff;
+    padding: 16px 40px;
+    background: #5865F2;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(88,101,242,0.4);
+    transition: all 0.25s;
+  }
+  .btn-discord:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(88,101,242,0.6); background: #4752c4; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border2);
+    padding: 48px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 24px;
+  }
+
+  .footer-logo {
+    font-family: var(--font-head);
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #fff, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-links {
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .footer-links a {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--card2);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--green);
+    letter-spacing: 1px;
+    z-index: 9999;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+    opacity: 0;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 24px;
+    max-width: 1200px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .shop-promo-inner { grid-template-columns: 1fr; padding: 32px 24px; gap: 32px; }
+    .stat-item { min-width: 140px; }
+    footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
+    .discord-section { padding: 40px 24px; }
+    .step-item { border-right: none; border-bottom: 1px solid var(--border2); }
+    .step-item:last-child { border-bottom: none; }
+  }
+
+  /* ── SECTION FADE-IN (INTERSECTION) ── */
+  .fade-section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-section.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 </style>
 </head>
 <body>
 
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-<div class="grid-lines"></div>
-<canvas id="starfield"></canvas>
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 
+<!-- ── NAV ── -->
 <nav>
-  <div class="nav-logo">VOIDHUB</div>
-  <div class="nav-ip">
-    <div class="nav-ip-dot"></div>
-    voidhub.graj.today
-  </div>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">⬡</div>
+    <span class="nav-logo-text">VOIDHUB</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#modes">Режимы</a></li>
+    <li><a href="#features">Фичи</a></li>
+    <li><a href="#howtojoin">Подключиться</a></li>
+    <li><a href="https://voidhub.tebex.io/" target="_blank" class="nav-shop-btn">🛒 Магазин</a></li>
+  </ul>
 </nav>
 
-<section class="hero">
-  <div class="hero-tag">
-    <div class="hero-tag-diamond"></div>
-    Донат Магазин
-    <div class="hero-tag-diamond"></div>
-  </div>
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-badge">✦ Minecraft сервер онлайн</div>
 
-  <h1>
-    <span class="line1">VOID</span>
-    <span class="line2">HUB</span>
+  <h1 class="hero-title">
+    <span class="void">VOID</span><span class="hub">HUB</span>
   </h1>
 
   <p class="hero-sub">
-    Minecraft сервер · Привилегии и косметика<br>
-    Поддержи сервер — получи уникальные преимущества
+    Лучший PvP сервер с BedWars, Duels и SkyWars.
+    Врывайся — и побеждай.
   </p>
 
-  <a href="shop.html" class="hero-cta">
-    Открыть магазин
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M3 8h10M9 4l4 4-4 4"/>
-    </svg>
-  </a>
-
-  <div class="modes">
-    <div class="mode-chip on">⚔ BedWars</div>
-    <div class="mode-chip">SkyWars — скоро</div>
-    <div class="mode-chip">KitPvP — скоро</div>
-    <div class="mode-chip">Skyblock — скоро</div>
+  <div class="hero-ip-box" onclick="copyIP()">
+    <div>
+      <div class="ip-label">IP адрес</div>
+      <div class="ip-address">voidhub.graj.today</div>
+    </div>
+    <div class="copy-hint">[ СКОПИРОВАТЬ ]</div>
   </div>
 
-  <div class="scroll-hint">
-    <div class="scroll-hint-line"></div>
-    scroll
-  </div>
-</section>
-
-<div class="stats">
-  <div class="stat">
-    <div class="stat-num">1</div>
-    <div class="stat-label">Режим</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">24/7</div>
-    <div class="stat-label">Онлайн</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">∞</div>
-    <div class="stat-label">Веселья</div>
+  <div class="hero-btns">
+    <a href="https://voidhub.tebex.io/" target="_blank" class="btn-primary">🛒 Открыть магазин</a>
+    <a href="#modes" class="btn-secondary">⚔️ Режимы игры</a>
   </div>
 </div>
 
+<!-- ── STATS ── -->
+<div style="position:relative;z-index:1;padding:0 24px 80px;max-width:960px;margin:0 auto;" class="fade-section">
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num" id="stat-online">—</div>
+      <div class="stat-label">Онлайн</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Режима</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1.8+</div>
+      <div class="stat-label">Версия</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Аптайм</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── MODES ── -->
+<section id="modes" class="fade-section">
+  <div class="section-header">
+    <div class="section-tag">// game modes</div>
+    <h2 class="section-title">Режимы <span>игры</span></h2>
+    <p class="section-desc">Выбирай режим и докажи, что ты лучший на сервере</p>
+  </div>
+
+  <div class="modes-grid">
+    <!-- BedWars -->
+    <div class="mode-card active">
+      <div class="mode-glow"></div>
+      <div class="mode-banner mode-banner-bedwars">
+        <div class="mode-banner-particles">
+          <span style="left:15%;--dx:-20px;animation-duration:3.2s;animation-delay:0s"></span>
+          <span style="left:35%;--dx:10px;animation-duration:4.1s;animation-delay:0.5s"></span>
+          <span style="left:55%;--dx:-15px;animation-duration:3.7s;animation-delay:1s"></span>
+          <span style="left:75%;--dx:25px;animation-duration:4.5s;animation-delay:0.3s"></span>
+          <span style="left:88%;--dx:-10px;animation-duration:3.0s;animation-delay:1.5s"></span>
+        </div>
+        <div class="mode-banner-icon">🛏️</div>
+      </div>
+      <div class="mode-body">
+        <div class="mode-header">
+          <div class="mode-name">BedWars</div>
+          <div class="mode-status">● ОНЛАЙН</div>
+        </div>
+        <p class="mode-desc">
+          Защищай кровать и уничтожай кровати противников. Фармь ресурсы, апгрейди команду и будь последним выжившим.
+        </p>
+        <div class="mode-tags">
+          <span class="mode-tag">4v4v4v4</span>
+          <span class="mode-tag">TEAMS</span>
+          <span class="mode-tag">SOLO</span>
+          <span class="mode-tag">RANKED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Duels -->
+    <div class="mode-card coming-soon">
+      <div class="mode-glow"></div>
+      <div class="mode-banner mode-banner-duels">
+        <div class="mode-banner-particles">
+          <span style="left:20%;--dx:15px;animation-duration:3.5s;animation-delay:0.2s"></span>
+          <span style="left:50%;--dx:-20px;animation-duration:4.0s;animation-delay:0.8s"></span>
+          <span style="left:80%;--dx:10px;animation-duration:3.2s;animation-delay:0s"></span>
+        </div>
+        <div class="mode-banner-icon">⚔️</div>
+      </div>
+      <div class="mode-body">
+        <div class="mode-header">
+          <div class="mode-name">Duels</div>
+          <div class="mode-status">◌ СКОРО</div>
+        </div>
+        <p class="mode-desc">
+          1 на 1 — выясни кто настоящий PvP мастер. Разные арены, режимы и рейтинговая система.
+        </p>
+        <div class="mode-tags">
+          <span class="mode-tag">1v1</span>
+          <span class="mode-tag">RANKED</span>
+          <span class="mode-tag">КЛАССИКА</span>
+          <span class="mode-tag">UHC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SkyWars -->
+    <div class="mode-card coming-soon">
+      <div class="mode-glow"></div>
+      <div class="mode-banner mode-banner-skywars">
+        <div class="mode-banner-particles">
+          <span style="left:10%;--dx:20px;animation-duration:4.2s;animation-delay:0.4s"></span>
+          <span style="left:40%;--dx:-15px;animation-duration:3.8s;animation-delay:0.9s"></span>
+          <span style="left:65%;--dx:10px;animation-duration:3.3s;animation-delay:0.1s"></span>
+          <span style="left:85%;--dx:-25px;animation-duration:4.6s;animation-delay:1.2s"></span>
+        </div>
+        <div class="mode-banner-icon">☁️</div>
+      </div>
+      <div class="mode-body">
+        <div class="mode-header">
+          <div class="mode-name">SkyWars</div>
+          <div class="mode-status">◌ СКОРО</div>
+        </div>
+        <p class="mode-desc">
+          Острова в небе, сундуки с лутом и последний выживший забирает всё. Прыгай, воюй, побеждай.
+        </p>
+        <div class="mode-tags">
+          <span class="mode-tag">SOLO</span>
+          <span class="mode-tag">TEAMS</span>
+          <span class="mode-tag">КЭЖУАЛ</span>
+          <span class="mode-tag">RANKED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<section id="features" class="fade-section">
+  <div class="section-header">
+    <div class="section-tag">// features</div>
+    <h2 class="section-title">Почему <span>VoidHUB?</span></h2>
+    <p class="section-desc">Всё, что нужно для идеального игрового опыта</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-name">Низкий пинг</div>
+      <p class="feature-desc">Оптимизированные серверы с минимальным лагом. Реагируй быстрее всех и выигрывай каждый файт.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏆</span>
+      <div class="feature-name">Рейтинговая система</div>
+      <p class="feature-desc">Набирай рейтинг, поднимайся по таблице лидеров и покажи всем кто настоящий чемпион.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎨</span>
+      <div class="feature-name">Кастомизация</div>
+      <p class="feature-desc">Уникальные скины, эффекты смерти, анимации победы и другие косметические плюшки.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🛡️</span>
+      <div class="feature-name">Античит</div>
+      <p class="feature-desc">Современная система защиты от читеров. Честная игра гарантирована на всех режимах.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📊</span>
+      <div class="feature-name">Статистика</div>
+      <p class="feature-desc">Детальная статистика по каждому режиму. Отслеживай прогресс и анализируй игру.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎁</span>
+      <div class="feature-name">Ивенты</div>
+      <p class="feature-desc">Регулярные турниры и ивенты с ценными призами. Следи за анонсами в Discord.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SHOP PROMO ── -->
+<section class="fade-section">
+  <div class="shop-promo">
+    <div class="shop-promo-bg"></div>
+    <div class="shop-promo-inner">
+      <div class="shop-promo-left">
+        <h2>Получи <span>преимущество</span> в игре</h2>
+        <p>Открой донат-ранги с эксклюзивными привилегиями, косметикой и бонусами. Поддержи сервер и выдели себя среди игроков.</p>
+        <a href="https://voidhub.tebex.io/" target="_blank" class="btn-primary">
+          🛒 Перейти в магазин
+        </a>
+      </div>
+      <div class="shop-promo-right">
+        <div class="ranks-list">
+          <div class="rank-item">
+            <div class="rank-badge rank-vip">VIP</div>
+            <div class="rank-info">
+              <div class="rank-name">VIP Ранг</div>
+              <div class="rank-perks">Косметика, приоритет очереди</div>
+            </div>
+          </div>
+          <div class="rank-item">
+            <div class="rank-badge rank-mvp">MVP</div>
+            <div class="rank-info">
+              <div class="rank-name">MVP Ранг</div>
+              <div class="rank-perks">Эффекты, кастомные имена</div>
+            </div>
+          </div>
+          <div class="rank-item">
+            <div class="rank-badge rank-elite">ELITE</div>
+            <div class="rank-info">
+              <div class="rank-name">Elite Ранг</div>
+              <div class="rank-perks">Exclusive аура, крылья</div>
+            </div>
+          </div>
+          <div class="rank-item">
+            <div class="rank-badge rank-legend">LEGEND</div>
+            <div class="rank-info">
+              <div class="rank-name">Legend Ранг</div>
+              <div class="rank-perks">Все бонусы + VIP поддержка</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── HOW TO JOIN ── -->
+<section id="howtojoin" class="fade-section">
+  <div class="section-header">
+    <div class="section-tag">// how to join</div>
+    <h2 class="section-title">Как <span>подключиться?</span></h2>
+    <p class="section-desc">Три простых шага — и ты уже в игре</p>
+  </div>
+
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-num">01</div>
+      <div class="step-title">Запусти Minecraft</div>
+      <p class="step-desc">Открой Minecraft Java Edition версии <code>1.8+</code>. Совместим со всеми актуальными версиями.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num">02</div>
+      <div class="step-title">Добавь сервер</div>
+      <p class="step-desc">Нажми «Сетевая игра» → «Добавить сервер» и введи IP: <code>voidhub.graj.today</code></p>
+    </div>
+    <div class="step-item">
+      <div class="step-num">03</div>
+      <div class="step-title">Играй!</div>
+      <p class="step-desc">Выбирай режим в лобби, собирай команду и начинай побеждать. Удачи!</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── DISCORD ── -->
+<section class="fade-section" style="padding-bottom:40px;">
+  <div class="discord-section">
+    <span class="discord-icon">💬</span>
+    <h2>Присоединяйся к Discord</h2>
+    <p>Будь в курсе новостей, участвуй в ивентах и общайся с комьюнити VoidHUB</p>
+    <a href="#" class="btn-discord">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      Discord сервер
+    </a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">VOIDHUB</div>
+  <div class="footer-links">
+    <a href="#modes">Режимы</a>
+    <a href="#features">Фичи</a>
+    <a href="https://voidhub.tebex.io/" target="_blank">Магазин</a>
+    <a href="#howtojoin">Подключиться</a>
+  </div>
+  <div class="footer-copy">© 2025 VoidHUB · voidhub.graj.today</div>
+</footer>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">✓ IP скопирован!</div>
+
 <script>
-const canvas = document.getElementById('starfield');
-const ctx = canvas.getContext('2d');
-let stars = [];
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
-function initStars() {
-  stars = [];
-  for (let i = 0; i < 120; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.2 + 0.2,
-      a: Math.random(),
-      speed: Math.random() * 0.004 + 0.002,
-      offset: Math.random() * Math.PI * 2
+  // Copy IP
+  function copyIP() {
+    navigator.clipboard.writeText('voidhub.graj.today').then(() => {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
     });
   }
-}
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const t = Date.now() / 1000;
-  stars.forEach(s => {
-    const alpha = 0.15 + 0.5 * (0.5 + 0.5 * Math.sin(t * s.speed * 10 + s.offset));
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-    ctx.fill();
+  // Intersection Observer for fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-section').forEach(el => observer.observe(el));
+
+  // Simulate player count
+  function updateOnline() {
+    const n = Math.floor(Math.random() * 30) + 5;
+    const el = document.getElementById('stat-online');
+    if (el) el.textContent = n;
+  }
+  updateOnline();
+  setInterval(updateOnline, 15000);
+
+  // Smooth nav active state
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
   });
-  requestAnimationFrame(draw);
-}
-
-resize();
-initStars();
-draw();
-window.addEventListener('resize', () => { resize(); initStars(); });
 </script>
 </body>
 </html>
